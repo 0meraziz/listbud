@@ -1,0 +1,50 @@
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface Place {
+  id: string;
+  userId: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  placeId?: string;
+  rating?: number;
+  categories: Category[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  color: string;
+  userId: string;
+  createdAt: string;
+}
+
+export interface SearchFilters {
+  query: string;
+  categories: string[];
+  rating?: number;
+}
+
+export interface GoogleTakeoutPlace {
+  name: string;
+  location: {
+    address: string;
+    latitudeE7: number;
+    longitudeE7: number;
+  };
+  placeId?: string;
+}
+
+export interface ImportResult {
+  success: boolean;
+  imported: number;
+  errors: string[];
+}

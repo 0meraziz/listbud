@@ -1,0 +1,18 @@
+{
+  "name": "listbud",
+  "version": "1.0.0",
+  "description": "ListBud MVP - Google Maps saved places management",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm start",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "install-deps": "cd server && npm install && cd ../client && npm install",
+    "start": "./dev.sh"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Central Park",
+    "location": {
+      "address": "New York, NY 10024, USA",
+      "latitudeE7": 407749870,
+      "longitudeE7": -739889530
+    },
+    "placeId": "ChIJ4zGFAZpYwokRGUGph3Mf37k"
+  },
+  {
+    "name": "Times Square",
+    "location": {
+      "address": "Times Square, New York, NY 10036, USA",
+      "latitudeE7": 407580000,
+      "longitudeE7": -739860000
+    },
+    "placeId": "ChIJmQJIxlVYwokRLgeuocVOGVU"
+  },
+  {
+    "name": "Brooklyn Bridge",
+    "location": {
+      "address": "Brooklyn Bridge, New York, NY 10038, USA",
+      "latitudeE7": 407133250,
+      "longitudeE7": -739997630
+    },
+    "placeId": "ChIJbQQRlEFZwokR8q6jocVOGVU"
+  },
+  {
+    "name": "Golden Gate Bridge",
+    "location": {
+      "address": "Golden Gate Bridge, San Francisco, CA, USA",
+      "latitudeE7": 378194440,
+      "longitudeE7": -1224763890
+    },
+    "placeId": "ChIJw____9J1hMARgEFKhTKKGVU"
+  },
+  {
+    "name": "Statue of Liberty",
+    "location": {
+      "address": "Statue of Liberty, New York, NY 10004, USA",
+      "latitudeE7": 405920640,
+      "longitudeE7": -740169280
+    },
+    "placeId": "ChIJPTacEpBQwokRKwIlDXelxkA"
+  }
+]
