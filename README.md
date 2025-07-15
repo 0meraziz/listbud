@@ -63,14 +63,14 @@ cd client && npm start
 
 ### Step 1: Request Your Data
 1. Go to [Google Takeout](https://takeout.google.com/)
-2. Click "Deselect all" then find and select "Maps (your places)"
+2. Click "Deselect all" then find and select "Saved"
 3. Choose format: CSV
 4. Click "Next step" → "Create export"
 5. Wait for the download link (can take a few minutes to hours)
 
 ### Step 2: Extract and Import
 1. Download and extract the archive
-2. Navigate to `Takeout/Maps (your places)/Saved Places/`
+2. Navigate to `Takeout/Saved/Saved Places/`
 3. Look for CSV files (usually named like "Saved Places.csv")
 4. In ListBud, click "Import Places" and upload the CSV file
 
