@@ -1,6 +1,6 @@
-/* ==========================================================================
-   ListBud Design System - CSS Custom Properties & Design Tokens
-   ========================================================================== */
+@import './styles/globals.css';
+
+/* Legacy styles - to be gradually removed */
 
 :root {
   /* Color System - Primary Palette */

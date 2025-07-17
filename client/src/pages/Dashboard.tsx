@@ -52,31 +52,31 @@ const Dashboard: React.FC = () => {
   const handleSearch = async (filters: SearchFilters) => {
     try {
       let filtered = places;
-      
+
       // Apply folder filter if we're in folder view
       if (viewMode === 'places' && currentFolder) {
-        filtered = filtered.filter(place => place.folderId === currentFolder.id);
+        filtered = filtered.filter(place => (place as any).folderId === currentFolder.id);
       }
-      
+
       // Apply text search
       if (filters.query && filters.query.trim() !== '') {
         const query = filters.query.toLowerCase();
-        filtered = filtered.filter(place => 
-          place.name.toLowerCase().includes(query) || 
+        filtered = filtered.filter(place =>
+          place.name.toLowerCase().includes(query) ||
           place.address.toLowerCase().includes(query) ||
           place.notes?.toLowerCase().includes(query)
         );
       }
-      
+
       // Apply category filter
-      if (filters.categories.length > 0) {
-        filtered = filtered.filter(place => 
-          place.categories.some(category => 
-            filters.categories.includes(category.id)
+      if (filters.tags && filters.tags.length > 0) {
+        filtered = filtered.filter(place =>
+          (place as any).categories.some((category: any) =>
+            filters.tags.includes(category.id)
           )
         );
       }
-      
+
       setFilteredPlaces(filtered);
     } catch (err: any) {
       setError('Search failed');
@@ -106,7 +106,7 @@ const Dashboard: React.FC = () => {
       if (!place) return;
 
       // Remove existing categories
-      for (const category of place.categories) {
+      for (const category of (place as any).categories) {
         await categoriesService.removeCategoryFromPlace(category.id, placeId);
       }
 
@@ -130,8 +130,8 @@ const Dashboard: React.FC = () => {
       } else {
         // Remove from folder - need to implement this endpoint
         const place = places.find(p => p.id === placeId);
-        if (place?.folderId) {
-          await foldersService.removePlaceFromFolder(place.folderId, placeId);
+        if ((place as any)?.folderId) {
+          await foldersService.removePlaceFromFolder((place as any).folderId, placeId);
         }
       }
 
@@ -163,7 +163,7 @@ const Dashboard: React.FC = () => {
     setCurrentFolder(folder);
     setViewMode('places');
     // Filter places for the selected folder
-    const folderPlaces = places.filter(place => place.folderId === folder.id);
+    const folderPlaces = places.filter(place => (place as any).folderId === folder.id);
     setFilteredPlaces(folderPlaces);
   };
 
@@ -174,7 +174,7 @@ const Dashboard: React.FC = () => {
   };
 
   const getUnorganizedPlaces = () => {
-    return places.filter(place => !place.folderId);
+    return places.filter(place => !(place as any).folderId);
   };
 
   if (isLoading) {
@@ -226,7 +226,7 @@ const Dashboard: React.FC = () => {
                   {viewMode === 'places' && currentFolder ? currentFolder.name : 'My Places'}
                 </h1>
                 <p className="mt-2 text-gray-600">
-                  {viewMode === 'folders' 
+                  {viewMode === 'folders'
                     ? `${folders.length} folders • ${places.length} places total`
                     : `${filteredPlaces.length} places in folder`
                   }
@@ -290,7 +290,7 @@ const Dashboard: React.FC = () => {
           {/* Only show search bar in places view */}
           {viewMode === 'places' && (
             <div>
-              <SearchBar onSearch={handleSearch} categories={categories} />
+              <SearchBar onSearch={handleSearch} tags={categories as any} />
             </div>
           )}
 
@@ -317,7 +317,7 @@ const Dashboard: React.FC = () => {
                     <FolderCard
                       key={folder.id}
                       folder={folder}
-                      placeCount={places.filter(p => p.folderId === folder.id).length}
+                      placeCount={places.filter(p => (p as any).folderId === folder.id).length}
                       onClick={() => handleFolderClick(folder)}
                     />
                   ))}
@@ -386,11 +386,11 @@ const Dashboard: React.FC = () => {
                     <PlaceCard
                       key={place.id}
                       place={place}
-                      categories={categories}
-                      folders={folders}
+                      tags={categories as any}
+                      lists={folders as any}
                       onDelete={handleDeletePlace}
-                      onCategoryChange={handleCategoryChange}
-                      onFolderChange={handleFolderChange}
+                      onTagChange={handleCategoryChange}
+                      onListChange={handleFolderChange}
                     />
                   ))}
                 </div>

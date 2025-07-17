@@ -6,6 +6,7 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   padding?: 'none' | 'sm' | 'md' | 'lg';
   hover?: boolean;
   clickable?: boolean;
+  variant?: 'default' | 'elevated' | 'outlined' | 'filled';
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -14,6 +15,7 @@ export const Card: React.FC<CardProps> = ({
   padding = 'md',
   hover = false,
   clickable = false,
+  variant = 'default',
   ...props
 }) => {
   const paddingClasses = {
@@ -23,10 +25,18 @@ export const Card: React.FC<CardProps> = ({
     lg: 'p-6',
   };
 
+  const variantClasses = {
+    default: 'bg-white border border-gray-200 shadow-sm',
+    elevated: 'bg-white border border-gray-100 shadow-md',
+    outlined: 'bg-white border-2 border-gray-200 shadow-none',
+    filled: 'bg-gray-50 border border-gray-100 shadow-sm',
+  };
+
   const baseClasses = `
-    bg-white rounded-lg border border-gray-200 shadow-sm
-    ${hover ? 'hover:shadow-md transition-shadow duration-200' : ''}
-    ${clickable ? 'cursor-pointer' : ''}
+    rounded-xl transition-all duration-200
+    ${variantClasses[variant]}
+    ${hover ? 'hover:shadow-lg hover:shadow-gray-100 hover:-translate-y-0.5' : ''}
+    ${clickable ? 'cursor-pointer active:scale-[0.98]' : ''}
     ${paddingClasses[padding]}
     ${className}
   `.trim().replace(/\s+/g, ' ');
@@ -34,7 +44,7 @@ export const Card: React.FC<CardProps> = ({
   return (
     <div
       className={baseClasses}
-      style={{ color: '#1f2937' }} // Ensure dark text color for better contrast
+      style={{ color: '#1f2937' }}
       {...props}
     >
       {children}
