@@ -2,13 +2,25 @@
 
 A minimal viable product for organizing Google Maps saved places using Google Takeout data.
 
-## Features
-- 🔐 Simple authentication (email/password)
-- 📥 Import Google Maps saved places from Google Takeout
-- 🔍 Search and filter places by name, address, or categories
-- 🏷️ Basic categorization system
-- 💾 Local SQLite database storage
-- 📱 Responsive design with custom CSS utilities
+## ✅ Current Status - All Critical Issues Fixed (July 17, 2025)
+
+### **Working Features:**
+- 🔐 User authentication (email/password)
+- 📥 Google Maps CSV import with auto-folder creation
+- ➕ Add places manually via modal form
+- 🏷️ Category assignment via dropdown menus
+- 📁 Folder organization with place assignment
+- 🔍 Search and filter functionality (name + categories)
+- 🗑️ Delete individual places or all places (testing)
+- 📱 Responsive design with modern UI components
+
+### **Recent Fixes:**
+- ✅ Add Place button now fully functional
+- ✅ CSV imports automatically create folders based on filename
+- ✅ Category assignment dropdowns working in PlaceCard
+- ✅ Folder assignment dropdowns working in PlaceCard
+- ✅ Search and filter buttons fully operational
+- ✅ Delete All button added for testing (with confirmation)
 
 ## Tech Stack
 - **Frontend**: React with TypeScript, Custom CSS utilities
@@ -58,6 +70,25 @@ cd client && npm start
 - **Client**: http://localhost:3000
 - **Server**: http://localhost:5000
 - **Health Check**: http://localhost:5000/health
+
+## How to Use
+
+### **Import Places from Google Maps:**
+1. Get your Google Takeout data (see section below)
+2. Click "Import" button on dashboard
+3. Upload your CSV file
+4. Places will be automatically organized into a folder named after your CSV file
+
+### **Organize Your Places:**
+- **Add Categories**: Use Category Manager to create categories with colors
+- **Create Folders**: Use Folder Manager to create organizational folders
+- **Assign Categories**: Click the tag icon on any place card to assign categories
+- **Move to Folders**: Click the folder icon on any place card to move between folders
+- **Search & Filter**: Use the search bar and filter by categories
+
+### **For Testing:**
+- Use "Delete All" button to quickly clear all places when testing imports
+- Button appears only when places exist and includes confirmation dialog
 
 ## Getting Your Google Maps Data
 
