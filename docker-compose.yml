@@ -1,0 +1,73 @@
+# Docker Compose for Local Development with PostgreSQL
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: listbud-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: listbud
+      POSTGRES_USER: listbud
+      POSTGRES_PASSWORD: listbud_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./server/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U listbud"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (for future caching/sessions)
+  redis:
+    image: redis:7-alpine
+    container_name: listbud-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ListBud Server
+  server:
+    build: ./server
+    container_name: listbud-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      DATABASE_URL: postgresql://listbud:listbud_dev_password@postgres:5432/listbud
+      JWT_SECRET: dev-jwt-secret-key
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server/src:/app/src
+      - ./server/migrations:/app/migrations
+      - uploads:/app/uploads
+    command: npm run dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads:
+
+networks:
+  default:
+    driver: bridge

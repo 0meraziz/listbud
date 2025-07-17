@@ -93,6 +93,40 @@ router.post('/:categoryId/places/:placeId', authenticateToken, (req: any, res: a
   );
 });
 
+// Delete category
+router.delete('/:id', authenticateToken, (req: any, res: any) => {
+  const userId = req.userId;
+  const categoryId = req.params.id;
+
+  // First, remove all associations with places
+  db.run(
+    'DELETE FROM place_categories WHERE category_id = ?',
+    [categoryId],
+    (err: any) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      // Then delete the category
+      db.run(
+        'DELETE FROM categories WHERE id = ? AND user_id = ?',
+        [categoryId, userId],
+        function (err: any) {
+          if (err) {
+            return res.status(500).json({ error: 'Database error' });
+          }
+
+          if (this.changes === 0) {
+            return res.status(404).json({ error: 'Category not found' });
+          }
+
+          res.json({ message: 'Category deleted successfully' });
+        }
+      );
+    }
+  );
+});
+
 // Remove category from place
 router.delete('/:categoryId/places/:placeId', authenticateToken, (req: any, res: any) => {
   const userId = req.userId;

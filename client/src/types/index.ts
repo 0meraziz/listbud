@@ -13,7 +13,10 @@ export interface Place {
   latitude: number;
   longitude: number;
   placeId?: string;
+  url?: string;
   rating?: number;
+  notes?: string;
+  folderId?: string;
   categories: Category[];
   createdAt: string;
   updatedAt: string;
@@ -42,4 +45,13 @@ export interface ImportResult {
   success: boolean;
   imported: number;
   errors: string[];
+}
+
+export interface Folder {
+  id: string;
+  name: string;
+  color: string;
+  userId: string;
+  placeCount: number;
+  createdAt: string;
 }

@@ -34,7 +34,10 @@ router.get('/', authenticateToken, (req: any, res: any) => {
         latitude: row.latitude,
         longitude: row.longitude,
         placeId: row.place_id,
+        url: row.url,
         rating: row.rating,
+        notes: row.notes,
+        folderId: row.folder_id,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         categories: row.category_ids ? row.category_ids.split(',').map((id: string, index: number) => ({
@@ -52,7 +55,7 @@ router.get('/', authenticateToken, (req: any, res: any) => {
 // Create new place
 router.post('/', authenticateToken, (req: any, res: any) => {
   const userId = req.userId;
-  const { name, address, latitude, longitude, placeId, rating } = req.body;
+  const { name, address, latitude, longitude, placeId, url, rating, notes, folderId } = req.body;
 
   if (!name || !address || !latitude || !longitude) {
     return res.status(400).json({ error: 'Name, address, latitude, and longitude are required' });
@@ -62,8 +65,8 @@ router.post('/', authenticateToken, (req: any, res: any) => {
   const now = new Date().toISOString();
 
   db.run(
-    'INSERT INTO places (id, user_id, name, address, latitude, longitude, place_id, rating, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    [id, userId, name, address, latitude, longitude, placeId, rating, now, now],
+    'INSERT INTO places (id, user_id, name, address, latitude, longitude, place_id, url, rating, notes, folder_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [id, userId, name, address, latitude, longitude, placeId, url, rating, notes, folderId, now, now],
     function (err: any) {
       if (err) {
         return res.status(500).json({ error: 'Database error' });
@@ -77,7 +80,10 @@ router.post('/', authenticateToken, (req: any, res: any) => {
         latitude,
         longitude,
         placeId,
+        url,
         rating,
+        notes,
+        folderId,
         createdAt: now,
         updatedAt: now,
         categories: []
@@ -128,7 +134,10 @@ router.get('/search', authenticateToken, (req: any, res: any) => {
       latitude: row.latitude,
       longitude: row.longitude,
       placeId: row.place_id,
+      url: row.url,
       rating: row.rating,
+      notes: row.notes,
+      folderId: row.folder_id,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       categories: row.category_ids ? row.category_ids.split(',').map((id: string, index: number) => ({
@@ -142,7 +151,7 @@ router.get('/search', authenticateToken, (req: any, res: any) => {
   });
 });
 
-// Delete place
+// Delete single place
 router.delete('/:id', authenticateToken, (req: any, res: any) => {
   const userId = req.userId;
   const placeId = req.params.id;
@@ -160,6 +169,26 @@ router.delete('/:id', authenticateToken, (req: any, res: any) => {
       }
 
       res.json({ message: 'Place deleted successfully' });
+    }
+  );
+});
+
+// Delete all places for user
+router.delete('/', authenticateToken, (req: any, res: any) => {
+  const userId = req.userId;
+
+  db.run(
+    'DELETE FROM places WHERE user_id = ?',
+    [userId],
+    function (err: any) {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      res.json({
+        message: 'All places deleted successfully',
+        deletedCount: this.changes
+      });
     }
   );
 });

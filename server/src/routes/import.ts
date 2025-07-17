@@ -29,6 +29,26 @@ router.post('/google-takeout', authenticateToken, upload.single('file'), async (
     const errors: string[] = [];
     const places: any[] = [];
 
+    // Create a folder based on the CSV filename
+    const folderName = file.originalname.replace(/\.[^/.]+$/, ""); // Remove file extension
+    const folderId = uuidv4();
+    const now = new Date().toISOString();
+
+    // Create folder for this import
+    await new Promise((resolve, reject) => {
+      db.run(
+        'INSERT INTO folders (id, user_id, name, color, created_at) VALUES (?, ?, ?, ?, ?)',
+        [folderId, userId, folderName, '#3B82F6', now],
+        function (err: any) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(true);
+          }
+        }
+      );
+    });
+
     // Parse CSV file
     const stream = fs.createReadStream(file.path)
       .pipe(csv())
@@ -40,7 +60,8 @@ router.post('/google-takeout', authenticateToken, upload.single('file'), async (
             note: row.Note || '',
             url: row.URL,
             tags: row.Tags || '',
-            comment: row.Comment || ''
+            comment: row.Comment || '',
+            folderId: folderId // Assign to the created folder
           });
         }
       })
@@ -60,8 +81,8 @@ router.post('/google-takeout', authenticateToken, upload.single('file'), async (
 
               await new Promise((resolve, reject) => {
                 db.run(
-                  'INSERT INTO places (id, user_id, name, address, latitude, longitude, place_id, url, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                  [id, userId, place.title, '', latitude, longitude, placeId, place.url, place.note + (place.comment ? ` | ${place.comment}` : ''), now, now],
+                  'INSERT INTO places (id, user_id, name, address, latitude, longitude, place_id, url, notes, folder_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                  [id, userId, place.title, '', latitude, longitude, placeId, place.url, place.note + (place.comment ? ` | ${place.comment}` : ''), place.folderId, now, now],
                   function (err: any) {
                     if (err) {
                       errors.push(`Failed to import ${place.title}: ${err.message}`);

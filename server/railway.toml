@@ -1,0 +1,56 @@
+# Railway Deployment Configuration
+# This file configures Railway deployment for ListBud Server
+
+# Build settings
+[build]
+builder = "NIXPACKS"
+
+# Environment variables for Railway
+[env]
+NODE_ENV = "production"
+PORT = "5000"
+
+# Health check configuration
+[healthcheck]
+path = "/health"
+interval = "30s"
+timeout = "10s"
+retries = 3
+
+# Resource limits
+[resources]
+memory = "512Mi"
+cpu = "0.5"
+
+# Auto-scaling configuration
+[autoscaling]
+min_instances = 1
+max_instances = 3
+target_cpu = 70
+target_memory = 80
+
+# Custom domains (configure in Railway dashboard)
+[domains]
+# production = "api.listbud.com"
+
+# Database configuration (will be auto-configured by Railway)
+[database]
+# Railway will automatically provide DATABASE_URL
+
+# Deployment settings
+[deploy]
+restart_policy = "unless-stopped"
+auto_deploy = true
+branch = "main"
+
+# Build command
+[build.command]
+cmd = "npm run build"
+
+# Start command
+[start.command]
+cmd = "npm run migrate:prod && npm start"
+
+# Development command (for Railway dev environment)
+[dev.command]
+cmd = "npm run dev"

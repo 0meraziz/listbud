@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, Place, Category, SearchFilters, AuthResponse, ImportResult } from '../types';
+import { User, Place, Category, Folder, SearchFilters, AuthResponse, ImportResult } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -78,6 +78,10 @@ export const placesService = {
 
   async deletePlace(id: string): Promise<void> {
     await api.delete(`/api/places/${id}`);
+  },
+
+  async deleteAllPlaces(): Promise<void> {
+    await api.delete('/api/places');
   }
 };
 
@@ -90,6 +94,10 @@ export const categoriesService = {
   async createCategory(name: string, color: string): Promise<Category> {
     const response = await api.post('/api/categories', { name, color });
     return response.data;
+  },
+
+  async deleteCategory(id: string): Promise<void> {
+    await api.delete(`/api/categories/${id}`);
   },
 
   async addCategoryToPlace(categoryId: string, placeId: string): Promise<void> {
@@ -113,5 +121,33 @@ export const importService = {
     });
 
     return response.data;
+  }
+};
+
+export const foldersService = {
+  async getFolders(): Promise<Folder[]> {
+    const response = await api.get('/api/folders');
+    return response.data.folders;
+  },
+
+  async createFolder(name: string, color: string): Promise<Folder> {
+    const response = await api.post('/api/folders', { name, color });
+    return response.data;
+  },
+
+  async updateFolder(id: string, name: string, color: string): Promise<void> {
+    await api.put(`/api/folders/${id}`, { name, color });
+  },
+
+  async deleteFolder(id: string): Promise<void> {
+    await api.delete(`/api/folders/${id}`);
+  },
+
+  async movePlaceToFolder(folderId: string, placeId: string): Promise<void> {
+    await api.post(`/api/folders/${folderId}/places/${placeId}`);
+  },
+
+  async removePlaceFromFolder(folderId: string, placeId: string): Promise<void> {
+    await api.delete(`/api/folders/${folderId}/places/${placeId}`);
   }
 };

@@ -212,3 +212,22 @@ For detailed troubleshooting, see `TROUBLESHOOTING.md`.
 ## License
 
 MIT License - feel free to use this project as a starting point for your own applications!
+
+# ListBud - MVP to Beta Transition
+
+A production-ready enhancement of Google Maps saved places organization with advanced search, categorization, and user experience features.
+
+## 🎯 **Current Status: Week 2 - User Experience Enhancements**
+- ✅ **MVP**: Complete and functional
+- ✅ **Infrastructure**: Production-ready (PostgreSQL, Docker, Security)
+- ✅ **Error Handling**: Complete system implemented
+- 🔄 **Performance**: Optimization in progress
+- 🔄 **Analytics**: Planning stage
+
+## 📋 **Project Management**
+For detailed progress tracking, roadmaps, and documentation, see the [`project-management/`](./project-management/) folder:
+- [📊 Progress Tracker](./project-management/PROGRESS_TRACKER.md) - Current development status
+- [📋 Project Plan](./project-management/project_plan.md) - Complete project roadmap
+- [🗂️ Project Hub](./project-management/README.md) - All project management files
+
+---

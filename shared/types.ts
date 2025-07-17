@@ -14,6 +14,8 @@ export interface Place {
   longitude: number;
   placeId?: string;
   rating?: number;
+  url?: string;
+  notes?: string;
   categories: Category[];
   createdAt: string;
   updatedAt: string;

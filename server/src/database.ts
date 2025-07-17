@@ -37,6 +37,18 @@ export const initializeDatabase = (): Promise<void> => {
         )
       `);
 
+      // Folders table
+      db.run(`
+        CREATE TABLE IF NOT EXISTS folders (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          color TEXT NOT NULL,
+          user_id TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+      `);
+
       // Places table
       db.run(`
         CREATE TABLE IF NOT EXISTS places (
@@ -50,9 +62,11 @@ export const initializeDatabase = (): Promise<void> => {
           url TEXT,
           notes TEXT,
           rating REAL,
+          folder_id TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (user_id) REFERENCES users (id)
+          FOREIGN KEY (user_id) REFERENCES users (id),
+          FOREIGN KEY (folder_id) REFERENCES folders (id)
         )
       `);
 
@@ -70,7 +84,9 @@ export const initializeDatabase = (): Promise<void> => {
       // Create indexes
       db.run(`CREATE INDEX IF NOT EXISTS idx_places_user_id ON places(user_id)`);
       db.run(`CREATE INDEX IF NOT EXISTS idx_places_name ON places(name)`);
+      db.run(`CREATE INDEX IF NOT EXISTS idx_places_folder_id ON places(folder_id)`);
       db.run(`CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id)`);
+      db.run(`CREATE INDEX IF NOT EXISTS idx_folders_user_id ON folders(user_id)`);
 
       resolve();
     });
