@@ -1,11 +1,12 @@
 // Modern Dashboard with Gumroad-inspired design
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Plus, FolderOpen, MapPin, Search, Grid3X3, List as ListIcon, Star, TrendingUp } from 'lucide-react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Plus, FolderOpen, MapPin, Search, Grid3X3, List as ListIcon, Star, TrendingUp, Upload, ExternalLink } from 'lucide-react'
 
 // Import our new components
 import AppHeader from '../components/AppHeader'
 import EnhancedCard from '../components/EnhancedCard'
+import ImportTakeout from '../components/ImportTakeout'
 import {
   Grid,
   PageContainer,
@@ -14,6 +15,7 @@ import {
   SkeletonCard
 } from '../components/LayoutComponents'
 import { Button } from '../components/ui/Button'
+import { useAuth } from '../contexts/AuthContext'
 
 // Import existing services and types
 import { placesService, categoriesService, foldersService } from '../services/api'
@@ -21,6 +23,9 @@ import { Place, Tag, Folder } from '../types'
 
 const ModernDashboard: React.FC = () => {
   const navigate = useNavigate()
+  const { folderId, placeId } = useParams()
+  const { user, logout } = useAuth()
+  const [loggedOut, setLoggedOut] = useState(false)
   const [places, setPlaces] = useState<Place[]>([])
   const [tags, setTags] = useState<Tag[]>([])
   const [folders, setFolders] = useState<Folder[]>([])
@@ -28,96 +33,47 @@ const ModernDashboard: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [showImport, setShowImport] = useState(false)
+  const [newItemName, setNewItemName] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [currentPlace, setCurrentPlace] = useState<Place | null>(null)
 
   useEffect(() => {
     loadData()
   }, [])
 
+  useEffect(() => {
+    // Set current folder based on URL parameter
+    if (folderId && folders.length > 0) {
+      const folder = folders.find(f => f.id === folderId)
+      setCurrentFolder(folder || null)
+    } else {
+      setCurrentFolder(null)
+    }
+  }, [folderId, folders])
+
+  useEffect(() => {
+    // Set current place based on URL parameter
+    if (placeId && places.length > 0) {
+      const place = places.find(p => p.id === placeId)
+      setCurrentPlace(place || null)
+    } else {
+      setCurrentPlace(null)
+    }
+  }, [placeId, places])
+
   const loadData = async () => {
     try {
       setIsLoading(true)
-
-      // Mock data for demonstration
-      const mockFolders: Folder[] = [
-        {
-          id: '1',
-          name: 'Favorite Restaurants',
-          color: '#3B82F6',
-          userId: 'user1',
-          placeCount: 2,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: 'Coffee Shops',
-          color: '#8B5CF6',
-          userId: 'user1',
-          placeCount: 1,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: '3',
-          name: 'Weekend Getaways',
-          color: '#10B981',
-          userId: 'user1',
-          placeCount: 0,
-          createdAt: new Date().toISOString()
-        }
-      ]
-
-      const mockTags: Tag[] = [
-        { id: '1', name: 'Fine Dining', color: '#EF4444', userId: 'user1', createdAt: new Date().toISOString() },
-        { id: '2', name: 'Date Night', color: '#F59E0B', userId: 'user1', createdAt: new Date().toISOString() },
-        { id: '3', name: 'Third Wave', color: '#8B5CF6', userId: 'user1', createdAt: new Date().toISOString() },
-        { id: '4', name: 'Gastropub', color: '#06B6D4', userId: 'user1', createdAt: new Date().toISOString() },
-        { id: '5', name: 'Casual', color: '#10B981', userId: 'user1', createdAt: new Date().toISOString() }
-      ]
-
-      const mockPlaces: Place[] = [
-        {
-          id: '1',
-          name: 'Blue Hill',
-          address: '75 Washington Pl, New York, NY 10011',
-          latitude: 40.732,
-          longitude: -73.997,
-          listId: '1',
-          tags: [mockTags[0], mockTags[1]],
-          userId: 'user1',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: 'Stumptown Coffee',
-          address: '18 W 29th St, New York, NY 10001',
-          latitude: 40.746,
-          longitude: -73.988,
-          listId: '2',
-          tags: [mockTags[2]],
-          userId: 'user1',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '3',
-          name: 'The Spotted Pig',
-          address: '314 W 11th St, New York, NY 10014',
-          latitude: 40.735,
-          longitude: -74.006,
-          listId: '1',
-          tags: [mockTags[3]],
-          userId: 'user1',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      ]
-
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      setPlaces(mockPlaces)
-      setTags(mockTags)
-      setFolders(mockFolders)
+      const [placesData, tagsData, foldersData] = await Promise.all([
+        placesService.getPlaces(),
+        categoriesService.getCategories(),
+        foldersService.getFolders()
+      ])
+      setPlaces(placesData || [])
+      setTags(tagsData || [])
+      setFolders(foldersData || [])
     } catch (err: any) {
       setError('Failed to load data')
       console.error('Error loading data:', err)
@@ -127,41 +83,124 @@ const ModernDashboard: React.FC = () => {
   }
 
   const handleSearch = (query: string) => {
-    console.log('Search query:', query)
+    console.log('Search handler called with query:', query)
+    setSearchQuery(query)
   }
 
   const handleAddNew = () => {
-    console.log('Add new item')
+    setShowAddModal(true)
+    setNewItemName('')
+  }
+
+  const handleCreateItem = async () => {
+    if (!newItemName.trim()) return
+
+    try {
+      if (currentFolder) {
+        // Create a new place via API
+        const newPlace = await placesService.createPlace({
+          name: newItemName,
+          address: 'Address not specified',
+          latitude: 0,
+          longitude: 0,
+          listId: currentFolder.id
+        })
+        setPlaces(prev => [...prev, newPlace])
+      } else {
+        // Create a new folder via API
+        const newFolder = await foldersService.createFolder(newItemName, '#3B82F6')
+        setFolders(prev => [...prev, newFolder])
+      }
+
+      setShowAddModal(false)
+      setNewItemName('')
+    } catch (error) {
+      console.error('Error creating item:', error)
+      setError('Failed to create item')
+    }
   }
 
   const handleFolderClick = (folder: Folder) => {
-    setCurrentFolder(folder)
+    console.log('Folder clicked:', folder.name)
     navigate(`/folders/${folder.id}`)
   }
 
   const handlePlaceClick = (place: Place) => {
+    console.log('Place clicked:', place.name)
     navigate(`/places/${place.id}`)
   }
 
+  const handleTagChange = async (placeId: string, tagIds: string[]) => {
+    try {
+      // This would need to be implemented in the API
+      console.log('Tag change for place:', placeId, 'tags:', tagIds)
+      // For now, just reload data to refresh the UI
+      await loadData()
+    } catch (error) {
+      console.error('Error updating tags:', error)
+    }
+  }
+
+  const handleDeletePlace = async (placeId: string) => {
+    try {
+      await placesService.deletePlace(placeId)
+      await loadData() // Refresh data
+    } catch (error) {
+      console.error('Error deleting place:', error)
+      setError('Failed to delete place')
+    }
+  }
+
   const getBreadcrumbs = () => {
-    const breadcrumbs = [{ label: 'Dashboard', href: '/dashboard' }]
+    const breadcrumbs = [{ label: 'Dashboard', href: '/modern' }]
     if (currentFolder) {
       breadcrumbs.push({ label: currentFolder.name, href: `/folders/${currentFolder.id}` })
+    }
+    if (currentPlace) {
+      breadcrumbs.push({ label: currentPlace.name, href: `/places/${currentPlace.id}` })
     }
     return breadcrumbs
   }
 
   const getPlacesInCurrentFolder = () => {
     if (!currentFolder) return places
+    // Filter places by folder ID (using listId field)
     return places.filter(place => place.listId === currentFolder.id)
   }
 
+  const getFilteredPlaces = () => {
+    let filteredPlaces = getPlacesInCurrentFolder()
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      console.log('Filtering with query:', query, 'from', filteredPlaces.length, 'places')
+      filteredPlaces = filteredPlaces.filter(place =>
+        place.name.toLowerCase().includes(query) ||
+        place.address?.toLowerCase().includes(query) ||
+        place.notes?.toLowerCase().includes(query) ||
+        (place.tags || []).some(tag => tag.name.toLowerCase().includes(query))
+      )
+      console.log('Filtered to:', filteredPlaces.length, 'places')
+    }
+
+    return filteredPlaces
+  }
+
   const getPageTitle = () => {
+    if (currentPlace) {
+      return {
+        title: currentPlace.name,
+        subtitle: currentPlace.address || 'Place details'
+      }
+    }
     if (currentFolder) {
-      const placesCount = getPlacesInCurrentFolder().length
+      const placesCount = getFilteredPlaces().length
+      const totalPlaces = getPlacesInCurrentFolder().length
+      const searchSuffix = searchQuery ? ` (${placesCount} of ${totalPlaces} shown)` : ''
       return {
         title: currentFolder.name,
-        subtitle: `${placesCount} place${placesCount !== 1 ? 's' : ''}`
+        subtitle: `${placesCount} place${placesCount !== 1 ? 's' : ''}${searchSuffix}`
       }
     }
 
@@ -202,10 +241,12 @@ const ModernDashboard: React.FC = () => {
               Create your first list
             </Button>
             <Button
+              onClick={() => setShowImport(true)}
               variant="ghost"
               size="lg"
               className="text-gray-600 hover:text-gray-900 px-8 py-3 text-lg"
             >
+              <Upload className="w-5 h-5 mr-2" />
               Import from Google Maps
             </Button>
           </div>
@@ -305,7 +346,10 @@ const ModernDashboard: React.FC = () => {
             const folderPlaces = places.filter(p => p.listId === folder.id)
             return (
               <div key={folder.id} className="group">
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+                <button
+                  onClick={() => handleFolderClick(folder)}
+                  className="w-full bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 hover:-translate-y-1 text-left"
+                >
                   {/* Card Header with gradient */}
                   <div className="h-24 bg-gradient-to-br from-blue-500 to-purple-600"></div>
 
@@ -326,15 +370,11 @@ const ModernDashboard: React.FC = () => {
                     </div>
 
                     {/* Action Button */}
-                    <Button
-                      onClick={() => handleFolderClick(folder)}
-                      variant="ghost"
-                      className="w-full justify-start text-left p-0 h-auto text-gray-600 hover:text-gray-900"
-                    >
+                    <div className="text-gray-600 hover:text-gray-900">
                       View places →
-                    </Button>
+                    </div>
                   </div>
-                </div>
+                </button>
               </div>
             )
           })}
@@ -360,7 +400,7 @@ const ModernDashboard: React.FC = () => {
   }
 
   const renderPlacesView = () => {
-    const placesToShow = getPlacesInCurrentFolder()
+    const placesToShow = getFilteredPlaces()
 
     if (isLoading) {
       return (
@@ -375,6 +415,36 @@ const ModernDashboard: React.FC = () => {
     }
 
     if (placesToShow.length === 0) {
+      // Different message for search vs no places
+      if (searchQuery.trim()) {
+        return (
+          <div className="max-w-2xl mx-auto text-center py-16 px-4">
+            <div className="text-6xl mb-6">🔍</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              No places found
+            </h2>
+            <p className="text-gray-600 mb-8">
+              No places match your search for "{searchQuery}". Try a different search term or clear the search to see all places.
+            </p>
+            <Button
+              onClick={() => setSearchQuery('')}
+              size="lg"
+              variant="outline"
+              className="mr-4"
+            >
+              Clear Search
+            </Button>
+            <Button
+              onClick={handleAddNew}
+              size="lg"
+              className="bg-black text-white hover:bg-gray-800"
+            >
+              Add New Place
+            </Button>
+          </div>
+        )
+      }
+
       return (
         <div className="max-w-2xl mx-auto text-center py-16 px-4">
           <div className="text-6xl mb-6">📍</div>
@@ -400,6 +470,26 @@ const ModernDashboard: React.FC = () => {
 
     return (
       <div className="max-w-6xl mx-auto px-4">
+        {/* Search Status Banner */}
+        {searchQuery.trim() && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Search className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-900">
+                  Showing {placesToShow.length} result{placesToShow.length !== 1 ? 's' : ''} for "{searchQuery}"
+                </span>
+              </div>
+              <button
+                onClick={() => setSearchQuery('')}
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Clear search
+              </button>
+            </div>
+          </div>
+        )}
+
         <Grid cols={3} gap={6}>
           {placesToShow.map((place: Place) => (
             <div key={place.id} className="group">
@@ -409,7 +499,13 @@ const ModernDashboard: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       <div className="text-2xl">📍</div>
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-gray-900 truncate">
+                        <h3
+                          className="font-semibold text-gray-900 truncate cursor-pointer hover:text-blue-600 transition-colors"
+                          onClick={() => {
+                            const query = encodeURIComponent(`${place.name} ${place.address}`)
+                            window.open(`https://www.google.com/maps/search/${query}`, '_blank')
+                          }}
+                        >
                           {place.name}
                         </h3>
                         <p className="text-gray-600 text-sm truncate">
@@ -454,6 +550,102 @@ const ModernDashboard: React.FC = () => {
     )
   }
 
+  const renderPlaceDetailsView = () => {
+    if (!currentPlace) return null
+
+    return (
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+          <div className="p-8">
+            {/* Header */}
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  {currentPlace.name}
+                </h1>
+                <div className="flex items-center gap-2 text-gray-600 mb-4">
+                  <MapPin className="w-5 h-5" />
+                  <span>{currentPlace.address}</span>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                {currentPlace.url && (
+                  <Button
+                    onClick={() => window.open(currentPlace.url, '_blank')}
+                    variant="outline"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Open Link
+                  </Button>
+                )}
+                <Button
+                  onClick={() => {
+                    const query = encodeURIComponent(`${currentPlace.name} ${currentPlace.address}`)
+                    window.open(`https://www.google.com/maps/search/${query}`, '_blank')
+                  }}
+                  variant="outline"
+                >
+                  <MapPin className="w-4 h-4 mr-2" />
+                  Open in Maps
+                </Button>
+              </div>
+            </div>
+
+            {/* Tags */}
+            {currentPlace.tags && currentPlace.tags.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">Tags</h3>
+                <div className="flex flex-wrap gap-2">
+                  {currentPlace.tags.map(tag => (
+                    <span
+                      key={tag.id}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                      style={{
+                        backgroundColor: tag.color + '20',
+                        color: tag.color,
+                        border: `1px solid ${tag.color}40`
+                      }}
+                    >
+                      {tag.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Notes */}
+            {currentPlace.notes && (
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">Notes</h3>
+                <p className="text-gray-600 leading-relaxed">{currentPlace.notes}</p>
+              </div>
+            )}
+
+            {/* Location Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Coordinates</h3>
+                <p className="text-gray-600">
+                  {currentPlace.latitude}, {currentPlace.longitude}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Added</h3>
+                <p className="text-gray-600">
+                  {new Date(currentPlace.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const pageTitle = getPageTitle()
 
   if (error) {
@@ -474,33 +666,50 @@ const ModernDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Gumroad-style header - only show when we have content */}
-      {(folders.length > 0 || currentFolder) && (
+      {(folders.length > 0 || currentFolder || currentPlace) && !loggedOut && (
         <AppHeader
           title={pageTitle.title}
           subtitle={pageTitle.subtitle}
           breadcrumbs={getBreadcrumbs()}
-          user={{
-            name: 'John Doe',
-            email: 'john@example.com'
-          }}
+          user={user ? { name: user.name, email: user.email } : undefined}
           onSearch={handleSearch}
+          currentSearchQuery={searchQuery}
           onAdd={handleAddNew}
+          onImport={() => setShowImport(true)}
+          onLogout={() => {
+            logout();
+            setLoggedOut(true);
+            window.location.href = '/login';
+          }}
         />
       )}
 
       <div className="py-8">
-        {!currentFolder ? (
+        {currentPlace ? (
+          renderPlaceDetailsView()
+        ) : !currentFolder ? (
           renderFolderView()
         ) : (
           <div>
             {/* Folder Header */}
             <div className="max-w-6xl mx-auto px-4 mb-8">
               <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900">{currentFolder.name}</h1>
-                  <p className="text-gray-600 mt-1">
-                    {getPlacesInCurrentFolder().length} place{getPlacesInCurrentFolder().length !== 1 ? 's' : ''}
-                  </p>
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => navigate('/modern')}
+                    className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to Dashboard
+                  </button>
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-900">{currentFolder.name}</h1>
+                    <p className="text-gray-600 mt-1">
+                      {getPlacesInCurrentFolder().length} place{getPlacesInCurrentFolder().length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Button
@@ -524,6 +733,62 @@ const ModernDashboard: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Add Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4">
+              {currentFolder ? 'Add New Place' : 'Create New List'}
+            </h3>
+            <input
+              type="text"
+              value={newItemName}
+              onChange={(e) => setNewItemName(e.target.value)}
+              placeholder={currentFolder ? 'Enter place name' : 'Enter list name'}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onKeyPress={(e) => e.key === 'Enter' && handleCreateItem()}
+              autoFocus
+            />
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateItem}
+                disabled={!newItemName.trim()}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {currentFolder ? 'Add Place' : 'Create List'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Modal */}
+      {showImport && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-[600px] max-w-90vw mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Import from Google Takeout</h3>
+              <button
+                onClick={() => setShowImport(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <ImportTakeout onImportComplete={() => {
+              loadData();
+              setShowImport(false);
+            }} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

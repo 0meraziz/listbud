@@ -40,6 +40,22 @@ function App() {
                     }
                   />
                   <Route
+                    path="/folders/:folderId"
+                    element={
+                      <ProtectedRoute>
+                        <ModernDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/places/:placeId"
+                    element={
+                      <ProtectedRoute>
+                        <ModernDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
                     path="/legacy"
                     element={
                       <ProtectedRoute>

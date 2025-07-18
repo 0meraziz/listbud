@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, Place, Category, Folder, SearchFilters, AuthResponse, ImportResult } from '../types';
+import { User, Place, Tag, Folder, SearchFilters, AuthResponse, ImportResult } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -66,7 +66,7 @@ export const placesService = {
     return response.data.places;
   },
 
-  async createPlace(place: Omit<Place, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'categories'>): Promise<Place> {
+  async createPlace(place: Omit<Place, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'tags'>): Promise<Place> {
     const response = await api.post('/api/places', place);
     return response.data;
   },
@@ -86,12 +86,12 @@ export const placesService = {
 };
 
 export const categoriesService = {
-  async getCategories(): Promise<Category[]> {
+  async getCategories(): Promise<Tag[]> {
     const response = await api.get('/api/categories');
     return response.data.categories;
   },
 
-  async createCategory(name: string, color: string): Promise<Category> {
+  async createCategory(name: string, color: string): Promise<Tag> {
     const response = await api.post('/api/categories', { name, color });
     return response.data;
   },

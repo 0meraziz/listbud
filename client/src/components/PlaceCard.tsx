@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MapPin, Star, ExternalLink, Trash2, Edit, Calendar, Tag, FolderIcon, MoreVertical } from 'lucide-react';
+import { MapPin, Star, ExternalLink, Trash2, Edit, Calendar, Tag, FolderIcon, MoreVertical, Eye } from 'lucide-react';
 import { Place, Tag as TagType, List } from '../types';
 import { Card, Button, Stack } from './ui';
 import { Dropdown } from './ui/Dropdown';
@@ -11,6 +11,7 @@ interface PlaceCardProps {
   lists?: List[];
   onDelete: (id: string) => void;
   onEdit?: (place: Place) => void;
+  onViewDetails?: (place: Place) => void;
   onTagChange?: (placeId: string, tagIds: string[]) => void;
   onListChange?: (placeId: string, listId: string | null) => void;
 }
@@ -21,6 +22,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   lists = [],
   onDelete,
   onEdit,
+  onViewDetails,
   onTagChange,
   onListChange
 }) => {
@@ -99,7 +101,13 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
           {/* Header with place name and actions */}
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-lg text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
+              <h3
+                className="font-semibold text-lg text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200 cursor-pointer"
+                onClick={() => {
+                  const query = encodeURIComponent(`${place.name} ${place.address}`)
+                  window.open(`https://www.google.com/maps/search/${query}`, '_blank')
+                }}
+              >
                 {place.name}
               </h3>
               <div className="flex items-start gap-2 text-sm text-gray-500">
@@ -110,6 +118,17 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
 
             {/* Actions */}
             <div className={`flex items-center gap-1 transition-all duration-200 ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'}`}>
+              {onViewDetails && (
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => onViewDetails(place)}
+                  className="text-gray-500 hover:text-blue-600"
+                >
+                  <Eye className="w-4 h-4" />
+                </Button>
+              )}
+
               {place.url && (
                 <Button
                   variant="ghost"

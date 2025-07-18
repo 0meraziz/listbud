@@ -37,10 +37,10 @@ router.get('/', authenticateToken, (req: any, res: any) => {
         url: row.url,
         rating: row.rating,
         notes: row.notes,
-        folderId: row.folder_id,
+        listId: row.folder_id, // Map folder_id to listId for client compatibility
         createdAt: row.created_at,
         updatedAt: row.updated_at,
-        categories: row.category_ids ? row.category_ids.split(',').map((id: string, index: number) => ({
+        tags: row.category_ids ? row.category_ids.split(',').map((id: string, index: number) => ({
           id,
           name: row.category_names.split(',')[index],
           color: row.category_colors.split(',')[index]
