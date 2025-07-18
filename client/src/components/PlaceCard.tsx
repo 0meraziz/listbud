@@ -29,7 +29,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   const handleTagToggle = (tagId: string) => {
     if (!onTagChange) return;
 
-    const currentTagIds = place.tags.map(tag => tag.id);
+    const currentTagIds = (place.tags || []).map(tag => tag.id);
     const newTagIds = currentTagIds.includes(tagId)
       ? currentTagIds.filter(id => id !== tagId)
       : [...currentTagIds, tagId];
@@ -133,7 +133,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
                     </Button>
                   }
                   items={tagMenuItems}
-                  selectedIds={place.tags.map(tag => tag.id)}
+                  selectedIds={(place.tags || []).map(tag => tag.id)}
                   onSelect={(item) => handleTagToggle(item.value)}
                   multiSelect
                 />
@@ -167,9 +167,9 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
           </div>
 
           {/* Tags display */}
-          {place.tags.length > 0 && (
+          {(place.tags || []).length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {place.tags.map(tag => (
+              {(place.tags || []).map(tag => (
                 <Badge
                   key={tag.id}
                   color={tag.color}

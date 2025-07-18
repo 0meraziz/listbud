@@ -28,8 +28,8 @@ export const DashboardIntegration: React.FC = () => {
         categoriesService.getCategories()
       ])
 
-      // Convert folders to lists
-      const convertedLists: List[] = foldersData.map(folder => ({
+      // Convert folders to lists (with safety check)
+      const convertedLists: List[] = (foldersData || []).map(folder => ({
         id: folder.id,
         name: folder.name,
         emoji: '📍', // Default emoji
@@ -40,8 +40,8 @@ export const DashboardIntegration: React.FC = () => {
         updatedAt: folder.createdAt, // Use createdAt as updatedAt for now
       }))
 
-      // Convert categories to tags
-      const convertedTags: Tag[] = categoriesData.map(category => ({
+      // Convert categories to tags (with safety check)
+      const convertedTags: Tag[] = (categoriesData || []).map(category => ({
         id: category.id,
         name: category.name,
         color: category.color,
@@ -49,8 +49,8 @@ export const DashboardIntegration: React.FC = () => {
         createdAt: category.createdAt,
       }))
 
-      // Convert places to new format
-      const convertedPlaces: Place[] = placesData.map(place => ({
+      // Convert places to new format (with safety check)
+      const convertedPlaces: Place[] = (placesData || []).map(place => ({
         ...place,
         listId: (place as any).folderId, // Convert folderId to listId
         tags: ((place as any).categories || []).map((category: any) => ({

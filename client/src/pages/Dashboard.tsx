@@ -382,12 +382,12 @@ const Dashboard: React.FC = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredPlaces.map(place => (
+                  {(filteredPlaces || []).map(place => (
                     <PlaceCard
                       key={place.id}
                       place={place}
-                      tags={categories as any}
-                      lists={folders as any}
+                      tags={(categories || []) as any}
+                      lists={(folders || []) as any}
                       onDelete={handleDeletePlace}
                       onTagChange={handleCategoryChange}
                       onListChange={handleFolderChange}

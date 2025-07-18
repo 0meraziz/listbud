@@ -8,7 +8,7 @@ interface SearchBarProps {
   tags: Tag[];
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, tags }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, tags = [] }) => {
   const [query, setQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -101,7 +101,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, tags }) => {
               </Badge>
             )}
             {selectedTags.map((tagId: string) => {
-              const tag = tags.find((t: Tag) => t.id === tagId);
+              const tag = (tags || []).find((t: Tag) => t.id === tagId);
               return tag ? (
                 <Badge
                   key={tagId}
@@ -116,16 +116,16 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, tags }) => {
           </div>
         )}
 
-        {showFilters && tags.length > 0 && (
+        {showFilters && (tags || []).length > 0 && (
           <div className="pt-4 border-t border-gray-200">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-gray-700">Tags</h3>
               <span className="text-xs text-gray-500">
-                {selectedTags.length} of {tags.length} selected
+                {selectedTags.length} of {(tags || []).length} selected
               </span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-              {tags.map((tag: Tag) => (
+              {(tags || []).map((tag: Tag) => (
                 <button
                   key={tag.id}
                   onClick={() => handleTagToggle(tag.id)}
