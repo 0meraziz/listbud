@@ -151,6 +151,84 @@ router.get('/search', authenticateToken, (req: any, res: any) => {
   });
 });
 
+// Update place
+router.put('/:id', authenticateToken, (req: any, res: any) => {
+  const userId = req.userId;
+  const placeId = req.params.id;
+  const { name, address, latitude, longitude, url, rating, notes, folderId } = req.body;
+
+  const now = new Date().toISOString();
+
+  db.run(
+    'UPDATE places SET name = ?, address = ?, latitude = ?, longitude = ?, url = ?, rating = ?, notes = ?, folder_id = ?, updated_at = ? WHERE id = ? AND user_id = ?',
+    [name, address, latitude, longitude, url, rating, notes, folderId, now, placeId, userId],
+    function (err: any) {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (this.changes === 0) {
+        return res.status(404).json({ error: 'Place not found' });
+      }
+
+      res.json({ message: 'Place updated successfully' });
+    }
+  );
+});
+
+// Update place tags
+router.put('/:id/tags', authenticateToken, (req: any, res: any) => {
+  const userId = req.userId;
+  const placeId = req.params.id;
+  const { tagIds } = req.body;
+
+  // First, verify the place belongs to the user
+  db.get(
+    'SELECT id FROM places WHERE id = ? AND user_id = ?',
+    [placeId, userId],
+    (err: any, place: any) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (!place) {
+        return res.status(404).json({ error: 'Place not found' });
+      }
+
+      // Remove existing tags for this place
+      db.run(
+        'DELETE FROM place_categories WHERE place_id = ?',
+        [placeId],
+        (err: any) => {
+          if (err) {
+            return res.status(500).json({ error: 'Database error' });
+          }
+
+          // Add new tags if any
+          if (tagIds && tagIds.length > 0) {
+            const placeholders = tagIds.map(() => '(?, ?)').join(', ');
+            const values = tagIds.flatMap((tagId: string) => [placeId, tagId]);
+
+            db.run(
+              `INSERT INTO place_categories (place_id, category_id) VALUES ${placeholders}`,
+              values,
+              function (err: any) {
+                if (err) {
+                  return res.status(500).json({ error: 'Database error' });
+                }
+
+                res.json({ message: 'Place tags updated successfully' });
+              }
+            );
+          } else {
+            res.json({ message: 'Place tags updated successfully' });
+          }
+        }
+      );
+    }
+  );
+});
+
 // Delete single place
 router.delete('/:id', authenticateToken, (req: any, res: any) => {
   const userId = req.userId;

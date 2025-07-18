@@ -71,6 +71,14 @@ export const placesService = {
     return response.data;
   },
 
+  async updatePlace(id: string, place: Partial<Omit<Place, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'tags'>>): Promise<void> {
+    await api.put(`/api/places/${id}`, place);
+  },
+
+  async updatePlaceTags(id: string, tagIds: string[]): Promise<void> {
+    await api.put(`/api/places/${id}/tags`, { tagIds });
+  },
+
   async searchPlaces(filters: SearchFilters): Promise<Place[]> {
     const response = await api.get('/api/places/search', { params: filters });
     return response.data.places;
