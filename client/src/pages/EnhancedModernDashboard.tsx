@@ -11,7 +11,9 @@ import {
   List as ListIcon,
   MoreVertical,
   Search,
-  Tag as TagIcon
+  Tag as TagIcon,
+  Filter,
+  X
 } from 'lucide-react'
 
 // Import our modern components
@@ -21,6 +23,7 @@ import { SearchInput } from '../components/ui/ModernInput'
 import ModernAppHeader from '../components/ModernAppHeader'
 import ImportTakeout from '../components/ImportTakeout'
 import { Grid, SkeletonCard } from '../components/LayoutComponents'
+import { TagManagementDialog } from '../components/redesign/TagManagementDialog'
 import { useAuth } from '../contexts/AuthContext'
 
 // Import existing services and types
@@ -48,6 +51,11 @@ const EnhancedModernDashboard: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Tag filtering and management
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [showTagFilter, setShowTagFilter] = useState(false)
+  const [showTagManagement, setShowTagManagement] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showImport, setShowImport] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -107,18 +115,75 @@ const EnhancedModernDashboard: React.FC = () => {
     navigate(`/places/${place.id}`)
   }
 
+  // Tag management functions
+  const handleTagCreate = async (name: string, color: string) => {
+    try {
+      const newTag = await categoriesService.createCategory(name, color)
+      setTags(prev => [...prev, newTag])
+    } catch (err) {
+      console.error('Error creating tag:', err)
+    }
+  }
+
+  const handleTagUpdate = async (tag: Tag) => {
+    // TODO: Implement update functionality when API endpoint is available
+    console.log('Tag update not yet implemented:', tag)
+  }
+
+  const handleTagDelete = async (tagId: string) => {
+    try {
+      await categoriesService.deleteCategory(tagId)
+      setTags(prev => prev.filter(t => t.id !== tagId))
+      setSelectedTags(prev => prev.filter(id => id !== tagId))
+      // Reload places to reflect tag removal
+      loadData()
+    } catch (err) {
+      console.error('Error deleting tag:', err)
+    }
+  }
+
+  const handleTagFilter = (tagId: string) => {
+    setSelectedTags(prev =>
+      prev.includes(tagId)
+        ? prev.filter(id => id !== tagId)
+        : [...prev, tagId]
+    )
+  }
+
+  const clearTagFilters = () => {
+    setSelectedTags([])
+  }
+
   // Filter data based on current context
   const filteredPlaces = places.filter(place => {
     const matchesFolder = currentFolder ? place.listId === currentFolder.id : true
     const matchesSearch = searchQuery === '' ||
       place.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       place.address?.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesFolder && matchesSearch
+
+    // Tag filtering - place must have all selected tags
+    const matchesTags = selectedTags.length === 0 ||
+      selectedTags.every(tagId => place.tags?.some(tag => tag.id === tagId))
+
+    return matchesFolder && matchesSearch && matchesTags
   })
 
-  const filteredFolders = folders.filter(folder =>
-    searchQuery === '' || folder.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredFolders = folders.filter(folder => {
+    const matchesSearch = searchQuery === '' ||
+      folder.name.toLowerCase().includes(searchQuery.toLowerCase())
+
+    // Tag filtering for folders - folder must have places with all selected tags
+    if (selectedTags.length === 0) {
+      return matchesSearch
+    }
+
+    const folderPlaces = places.filter(p => p.listId === folder.id)
+    const matchesTags = selectedTags.every(tagId =>
+      folderPlaces.some(place => place.tags?.some(tag => tag.id === tagId))
+    )
+
+    return matchesSearch && matchesTags
+  })
 
   // Determine current view context
   const getViewContext = () => {
@@ -379,18 +444,29 @@ const EnhancedModernDashboard: React.FC = () => {
                     <h4 className="text-sm font-semibold text-gray-700 mb-3">Tags</h4>
                     <div className="flex flex-wrap gap-2">
                       {currentPlace.tags.map((tag) => (
-                        <span
+                        <button
                           key={tag.id}
-                          className="modern-tag"
+                          className="modern-tag cursor-pointer hover:ring-2 hover:ring-blue-300 hover:ring-offset-1 transition-all"
                           style={{
                             backgroundColor: `${tag.color}15`,
                             color: tag.color,
                             borderColor: `${tag.color}30`
                           }}
+                          onClick={() => {
+                            // Navigate back to list view with this tag filter
+                            if (currentPlace.listId) {
+                              navigate(`/folders/${currentPlace.listId}`)
+                            } else {
+                              navigate('/dashboard')
+                            }
+                            setShowTagFilter(true)
+                            handleTagFilter(tag.id)
+                          }}
+                          title={`Filter places by ${tag.name}`}
                         >
                           <TagIcon className="w-3 h-3" />
                           {tag.name}
-                        </span>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -480,17 +556,29 @@ const EnhancedModernDashboard: React.FC = () => {
                           {place.tags && place.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2">
                               {place.tags.slice(0, 2).map((tag) => (
-                                <span
+                                <button
                                   key={tag.id}
-                                  className="modern-tag"
+                                  className="modern-tag cursor-pointer hover:ring-2 hover:ring-blue-300 hover:ring-offset-1 transition-all"
                                   style={{
                                     backgroundColor: `${tag.color}15`,
                                     color: tag.color,
                                     borderColor: `${tag.color}30`
                                   }}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    // Navigate back to list view with this tag filter
+                                    if (currentPlace?.listId) {
+                                      navigate(`/folders/${currentPlace.listId}`)
+                                    } else {
+                                      navigate('/dashboard')
+                                    }
+                                    setShowTagFilter(true)
+                                    handleTagFilter(tag.id)
+                                  }}
+                                  title={`Filter by ${tag.name}`}
                                 >
                                   {tag.name}
-                                </span>
+                                </button>
                               ))}
                             </div>
                           )}
@@ -571,8 +659,117 @@ const EnhancedModernDashboard: React.FC = () => {
                     List
                   </button>
                 </div>
+
+                {/* Tag Filter Toggle */}
+                <ModernButton
+                  variant={showTagFilter ? "primary" : "secondary"}
+                  size="sm"
+                  onClick={() => setShowTagFilter(!showTagFilter)}
+                  leftIcon={Filter}
+                >
+                  Filter by Tags
+                  {selectedTags.length > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
+                      {selectedTags.length}
+                    </span>
+                  )}
+                </ModernButton>
+
+                {/* Tag Management Button */}
+                <ModernButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowTagManagement(true)}
+                  leftIcon={TagIcon}
+                >
+                  Manage Tags
+                </ModernButton>
               </div>
             </div>
+
+            {/* Tag Filter Panel */}
+            {showTagFilter && (
+              <div className="list-card mb-6">
+                <div className="list-card-header">
+                  <h3 className="list-card-title text-lg">Filter by Tags</h3>
+                  <div className="flex items-center gap-2">
+                    {selectedTags.length > 0 && (
+                      <ModernButton
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearTagFilters}
+                        leftIcon={X}
+                      >
+                        Clear All
+                      </ModernButton>
+                    )}
+                    <ModernButton
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowTagFilter(false)}
+                      leftIcon={X}
+                    >
+                      Close
+                    </ModernButton>
+                  </div>
+                </div>
+                <div className="list-card-description">
+                  {tags.length === 0 ? (
+                    <div className="text-center py-8">
+                      <TagIcon className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+                      <p className="text-gray-500">No tags available. Create tags to organize your places.</p>
+                      <ModernButton
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setShowTagManagement(true)}
+                        leftIcon={Plus}
+                        className="mt-3"
+                      >
+                        Create First Tag
+                      </ModernButton>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <p className="text-sm text-gray-600">
+                        Select tags to filter places. Only places with all selected tags will be shown.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {tags.map((tag) => (
+                          <button
+                            key={tag.id}
+                            onClick={() => handleTagFilter(tag.id)}
+                            className={`modern-tag cursor-pointer transition-all ${
+                              selectedTags.includes(tag.id)
+                                ? 'ring-2 ring-blue-500 ring-offset-2'
+                                : 'hover:ring-1 hover:ring-gray-300'
+                            }`}
+                            style={{
+                              backgroundColor: selectedTags.includes(tag.id)
+                                ? tag.color
+                                : `${tag.color}15`,
+                              color: selectedTags.includes(tag.id)
+                                ? '#ffffff'
+                                : tag.color,
+                              borderColor: `${tag.color}30`
+                            }}
+                          >
+                            <TagIcon className="w-3 h-3" />
+                            {tag.name}
+                          </button>
+                        ))}
+                      </div>
+                      {selectedTags.length > 0 && (
+                        <div className="text-sm text-gray-600 mt-3">
+                          Filtering by {selectedTags.length} tag{selectedTags.length !== 1 ? 's' : ''}
+                          {' • '}
+                          {filteredPlaces.length} place{filteredPlaces.length !== 1 ? 's' : ''} match{filteredPlaces.length === 1 ? 'es' : ''}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {filteredPlaces.length === 0 ? (
               <div className="empty-state">
@@ -643,18 +840,24 @@ const EnhancedModernDashboard: React.FC = () => {
                       {place.tags && place.tags.length > 0 && (
                         <div className="place-card-tags">
                           {place.tags.slice(0, 3).map((tag) => (
-                            <span
+                            <button
                               key={tag.id}
-                              className="modern-tag"
+                              className="modern-tag cursor-pointer hover:ring-2 hover:ring-blue-300 hover:ring-offset-1 transition-all"
                               style={{
                                 backgroundColor: `${tag.color}15`,
                                 color: tag.color,
                                 borderColor: `${tag.color}30`
                               }}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setShowTagFilter(true)
+                                handleTagFilter(tag.id)
+                              }}
+                              title={`Filter by ${tag.name}`}
                             >
                               <TagIcon className="w-3 h-3" />
                               {tag.name}
-                            </span>
+                            </button>
                           ))}
                           {place.tags.length > 3 && (
                             <span className="modern-tag" style={{
@@ -694,6 +897,119 @@ const EnhancedModernDashboard: React.FC = () => {
         ) : (
           // Folders/Lists overview
           <div>
+            {/* Dashboard Controls */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-heading-2">Your Lists</h2>
+              <div className="flex items-center gap-3">
+                {/* Tag Filter Toggle */}
+                <ModernButton
+                  variant={showTagFilter ? "primary" : "secondary"}
+                  size="sm"
+                  onClick={() => setShowTagFilter(!showTagFilter)}
+                  leftIcon={Filter}
+                >
+                  Filter by Tags
+                  {selectedTags.length > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
+                      {selectedTags.length}
+                    </span>
+                  )}
+                </ModernButton>
+
+                {/* Tag Management Button */}
+                <ModernButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowTagManagement(true)}
+                  leftIcon={TagIcon}
+                >
+                  Manage Tags
+                </ModernButton>
+              </div>
+            </div>
+
+            {/* Tag Filter Panel */}
+            {showTagFilter && (
+              <div className="list-card mb-6">
+                <div className="list-card-header">
+                  <h3 className="list-card-title text-lg">Filter Lists by Tags</h3>
+                  <div className="flex items-center gap-2">
+                    {selectedTags.length > 0 && (
+                      <ModernButton
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearTagFilters}
+                        leftIcon={X}
+                      >
+                        Clear All
+                      </ModernButton>
+                    )}
+                    <ModernButton
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowTagFilter(false)}
+                      leftIcon={X}
+                    >
+                      Close
+                    </ModernButton>
+                  </div>
+                </div>
+                <div className="list-card-description">
+                  {tags.length === 0 ? (
+                    <div className="text-center py-8">
+                      <TagIcon className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+                      <p className="text-gray-500">No tags available. Create tags to organize your places.</p>
+                      <ModernButton
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setShowTagManagement(true)}
+                        leftIcon={Plus}
+                        className="mt-3"
+                      >
+                        Create First Tag
+                      </ModernButton>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <p className="text-sm text-gray-600">
+                        Select tags to filter lists. Only lists containing places with all selected tags will be shown.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {tags.map((tag) => (
+                          <button
+                            key={tag.id}
+                            onClick={() => handleTagFilter(tag.id)}
+                            className={`modern-tag cursor-pointer transition-all ${
+                              selectedTags.includes(tag.id)
+                                ? 'ring-2 ring-blue-500 ring-offset-2'
+                                : 'hover:ring-1 hover:ring-gray-300'
+                            }`}
+                            style={{
+                              backgroundColor: selectedTags.includes(tag.id)
+                                ? tag.color
+                                : `${tag.color}15`,
+                              color: selectedTags.includes(tag.id)
+                                ? '#ffffff'
+                                : tag.color,
+                              borderColor: `${tag.color}30`
+                            }}
+                          >
+                            <TagIcon className="w-3 h-3" />
+                            {tag.name}
+                          </button>
+                        ))}
+                      </div>
+                      {selectedTags.length > 0 && (
+                        <div className="text-sm text-gray-600 mt-3">
+                          Filtering by {selectedTags.length} tag{selectedTags.length !== 1 ? 's' : ''}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {filteredFolders.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-state-content">
@@ -816,6 +1132,16 @@ const EnhancedModernDashboard: React.FC = () => {
           </div>
         )}
       </main>
+
+      {/* Tag Management Dialog */}
+      <TagManagementDialog
+        open={showTagManagement}
+        onOpenChange={setShowTagManagement}
+        tags={tags}
+        onTagCreate={handleTagCreate}
+        onTagUpdate={handleTagUpdate}
+        onTagDelete={handleTagDelete}
+      />
 
       {/* Import Modal */}
       {showImport && (
