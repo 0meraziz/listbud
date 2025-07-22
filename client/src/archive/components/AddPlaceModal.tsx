@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { X, Save, MapPin, ExternalLink, FileText, Star } from 'lucide-react';
-import { placesService } from '../services/api';
-import { Place } from '../types';
-import { Button, Input, Card, Stack, Modal } from './ui';
+import { placesService } from '../../services/api';
+import { Place } from '../../types';
+import { Button, Input, Card, Stack, Modal } from '../ui';
 
 interface AddPlaceModalProps {
   isOpen: boolean;

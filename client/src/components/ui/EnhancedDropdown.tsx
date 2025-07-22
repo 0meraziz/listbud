@@ -57,7 +57,11 @@ const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
   return (
     <div className={cn('relative', className)} ref={dropdownRef}>
       <div
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={(e) => {
+          console.log('EnhancedDropdown: Trigger clicked, current isOpen:', isOpen)
+          e.stopPropagation()
+          setIsOpen(!isOpen)
+        }}
         className="cursor-pointer"
       >
         {trigger}

@@ -153,15 +153,6 @@ export const NewDashboard: React.FC<NewDashboardProps> = ({
       listPlaces = places
     }
 
-    console.log('ListView filtering:', {
-      activeListId: activeList.id,
-      activeListName: activeList.name,
-      totalPlaces: places.length,
-      filteredPlaces: listPlaces.length,
-      placesWithoutListId: places.filter(p => !p.listId).length,
-      placesWithNullListId: places.filter(p => p.listId === null).length,
-      placeListIds: places.map(p => ({ name: p.name, listId: p.listId, hasListId: !!p.listId }))
-    })
     return (
       <ListView
         list={activeList}

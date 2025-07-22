@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { NewDashboard } from '../components/redesign/NewDashboard'
-import ImportTakeout from '../components/ImportTakeout'
-import { List, Place, Tag } from '../types'
-import { placesService, foldersService, categoriesService } from '../services/api'
+import { NewDashboard } from '../../components/redesign/NewDashboard'
+import ImportTakeout from '../../components/ImportTakeout'
+import { List, Place, Tag } from '../../types'
+import { placesService, foldersService, categoriesService } from '../../services/api'
 
 // This is the main integration component connecting the redesigned NewDashboard
 // with the existing API and routing system

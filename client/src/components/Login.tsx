@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, LogIn } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from './common/ToastProvider';
 import { useApiErrorHandler } from '../hooks/useApiErrorHandler';
-import { Button, Input, Card, Stack, Container } from './ui';
+import { ModernButton, ModernInput } from './ui';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -61,77 +61,73 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12">
-      <Container size="sm">
-        <div className="max-w-md w-full mx-auto">
-          <Card padding="lg">
-            <Stack spacing="lg">
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-6">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                      <LogIn className="w-5 h-5 text-white" />
-                    </div>
-                    <span className="text-2xl font-bold text-gray-900">ListBud</span>
+      <div className="max-w-md w-full mx-auto px-4">
+        <div className="bg-white rounded-lg shadow-sm border p-8">
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <LogIn className="w-5 h-5 text-white" />
                   </div>
+                  <span className="text-2xl font-bold text-gray-900">ListBud</span>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                  Welcome back
-                </h2>
-                <p className="text-gray-600">
-                  Sign in to your account to continue
-                </p>
               </div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Welcome back
+              </h2>
+              <p className="text-gray-600">
+                Sign in to your account to continue
+              </p>
+            </div>
 
-              <form onSubmit={handleSubmit}>
-                <Stack spacing="md">
-                  <Input
-                    label="Email address"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
-                    leftIcon={Mail}
-                    error={errors.email}
-                    autoComplete="email"
-                  />
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <ModernInput
+                  label="Email address"
+                  type="email"
+                  value={email}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  error={errors.email}
+                  autoComplete="email"
+                />
 
-                  <Input
-                    label="Password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    leftIcon={Lock}
-                    error={errors.password}
-                    autoComplete="current-password"
-                  />
+                <ModernInput
+                  label="Password"
+                  type="password"
+                  value={password}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  error={errors.password}
+                  autoComplete="current-password"
+                />
 
-                  <Button
-                    type="submit"
-                    fullWidth
-                    loading={isLoading}
-                    leftIcon={LogIn}
-                  >
-                    Sign In
-                  </Button>
-                </Stack>
-              </form>
-
-              <div className="text-center">
-                <p className="text-sm text-gray-600">
-                  Don't have an account?{' '}
-                  <Link
-                    to="/register"
-                    className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
-                  >
-                    Create one here
-                  </Link>
-                </p>
+                <ModernButton
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
+                  leftIcon={LogIn}
+                >
+                  {isLoading ? 'Signing In...' : 'Sign In'}
+                </ModernButton>
               </div>
-            </Stack>
-          </Card>
+            </form>
+
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <Link
+                  to="/register"
+                  className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                >
+                  Create one here
+                </Link>
+              </p>
+            </div>
+          </div>
         </div>
-      </Container>
+      </div>
     </div>
   );
 };

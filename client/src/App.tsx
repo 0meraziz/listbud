@@ -7,10 +7,7 @@ import ToastProvider from './components/common/ToastProvider';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './components/Login';
 import Register from './components/Register';
-import Dashboard from './pages/Dashboard';
-import ModernDashboard from './pages/ModernDashboard';
 import EnhancedModernDashboard from './pages/EnhancedModernDashboard';
-import { DashboardIntegration } from './pages/DashboardIntegration';
 import DebugAuth from './components/DebugAuth';
 
 function App() {
@@ -26,47 +23,7 @@ function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                   <Route
-                    path="/redesign"
-                    element={
-                      <ProtectedRoute>
-                        <DashboardIntegration />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/redesign/folders/:folderId"
-                    element={
-                      <ProtectedRoute>
-                        <DashboardIntegration />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/redesign/places/:placeId"
-                    element={
-                      <ProtectedRoute>
-                        <DashboardIntegration />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
                     path="/dashboard"
-                    element={
-                      <ProtectedRoute>
-                        <EnhancedModernDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/modern"
-                    element={
-                      <ProtectedRoute>
-                        <EnhancedModernDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/enhanced"
                     element={
                       <ProtectedRoute>
                         <EnhancedModernDashboard />
@@ -89,24 +46,8 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route
-                    path="/legacy"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/old"
-                    element={
-                      <ProtectedRoute>
-                        <ModernDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route path="/" element={<Navigate to="/enhanced" replace />} />
-                  <Route path="*" element={<Navigate to="/enhanced" replace />} />
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>
               </div>
             </AppErrorBoundary>

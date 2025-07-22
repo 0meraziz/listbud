@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, UserPlus } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from './common/ToastProvider';
 import { useApiErrorHandler } from '../hooks/useApiErrorHandler';
-import { Button, Input, Card, Stack, Container } from './ui';
+import { ModernButton, ModernInput } from './ui';
 
 const Register: React.FC = () => {
   const [name, setName] = useState('');
@@ -83,99 +83,93 @@ const Register: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12">
-      <Container size="sm">
-        <div className="max-w-md w-full mx-auto">
-          <Card padding="lg">
-            <Stack spacing="lg">
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-6">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                      <UserPlus className="w-5 h-5 text-white" />
-                    </div>
-                    <span className="text-2xl font-bold text-gray-900">ListBud</span>
+      <div className="max-w-md w-full mx-auto px-4">
+        <div className="bg-white rounded-lg shadow-sm border p-8">
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <UserPlus className="w-5 h-5 text-white" />
                   </div>
+                  <span className="text-2xl font-bold text-gray-900">ListBud</span>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                  Create your account
-                </h2>
-                <p className="text-gray-600">
-                  Join ListBud to organize your saved places
-                </p>
               </div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Create your account
+              </h2>
+              <p className="text-gray-600">
+                Join ListBud to organize your saved places
+              </p>
+            </div>
 
-              <form onSubmit={handleSubmit}>
-                <Stack spacing="md">
-                  <Input
-                    label="Full name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your full name"
-                    leftIcon={User}
-                    error={errors.name}
-                    autoComplete="name"
-                  />
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <ModernInput
+                  label="Full name"
+                  type="text"
+                  value={name}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                  placeholder="Enter your full name"
+                  error={errors.name}
+                  autoComplete="name"
+                />
 
-                  <Input
-                    label="Email address"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
-                    leftIcon={Mail}
-                    error={errors.email}
-                    autoComplete="email"
-                  />
+                <ModernInput
+                  label="Email address"
+                  type="email"
+                  value={email}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  error={errors.email}
+                  autoComplete="email"
+                />
 
-                  <Input
-                    label="Password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Create a password"
-                    leftIcon={Lock}
-                    error={errors.password}
-                    autoComplete="new-password"
-                  />
+                <ModernInput
+                  label="Password"
+                  type="password"
+                  value={password}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                  placeholder="Create a password"
+                  error={errors.password}
+                  autoComplete="new-password"
+                />
 
-                  <Input
-                    label="Confirm password"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm your password"
-                    leftIcon={Lock}
-                    error={errors.confirmPassword}
-                    autoComplete="new-password"
-                  />
+                <ModernInput
+                  label="Confirm password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm your password"
+                  error={errors.confirmPassword}
+                  autoComplete="new-password"
+                />
 
-                  <Button
-                    type="submit"
-                    fullWidth
-                    loading={isLoading}
-                    leftIcon={UserPlus}
-                  >
-                    Create Account
-                  </Button>
-                </Stack>
-              </form>
-
-              <div className="text-center">
-                <p className="text-sm text-gray-600">
-                  Already have an account?{' '}
-                  <Link
-                    to="/login"
-                    className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
-                  >
-                    Sign in here
-                  </Link>
-                </p>
+                <ModernButton
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
+                  leftIcon={UserPlus}
+                >
+                  {isLoading ? 'Creating Account...' : 'Create Account'}
+                </ModernButton>
               </div>
-            </Stack>
-          </Card>
+            </form>
+
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Already have an account?{' '}
+                <Link
+                  to="/login"
+                  className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                >
+                  Sign in here
+                </Link>
+              </p>
+            </div>
+          </div>
         </div>
-      </Container>
+      </div>
     </div>
   );
 };

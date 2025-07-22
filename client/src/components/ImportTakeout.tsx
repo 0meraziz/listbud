@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { importService } from '../services/api';
-import { Button, Card, Stack } from './ui';
+import { ModernButton } from './ui';
 
 interface ImportTakeoutProps {
   onImportComplete?: () => void;
@@ -48,8 +48,8 @@ const ImportTakeout: React.FC<ImportTakeoutProps> = ({ onImportComplete }) => {
   };
 
   return (
-    <Card padding="lg">
-      <Stack spacing="lg">
+    <div className="bg-white rounded-lg shadow-sm border p-6">
+      <div className="space-y-6">
         <h2 className="text-xl font-semibold text-gray-900">Import from Google Takeout</h2>
 
         <div>
@@ -77,29 +77,24 @@ const ImportTakeout: React.FC<ImportTakeoutProps> = ({ onImportComplete }) => {
         </div>
 
         {file && (
-          <Card padding="md" className="bg-gray-50">
+          <div className="bg-gray-50 rounded-lg border p-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">
                 Selected: {file.name}
               </span>
-              <Button
+              <ModernButton
                 onClick={handleImport}
                 disabled={isLoading}
                 leftIcon={Upload}
-                variant="primary"
-                loading={isLoading}
               >
                 {isLoading ? 'Importing...' : 'Import'}
-              </Button>
+              </ModernButton>
             </div>
-          </Card>
+          </div>
         )}
 
         {result && (
-          <Card
-            padding="md"
-            className={result.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}
-          >
+          <div className={`rounded-lg border p-4 ${result.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
             {result.success ? (
               <div className="text-green-800">
                 <div className="flex items-center mb-2">
@@ -134,10 +129,10 @@ const ImportTakeout: React.FC<ImportTakeoutProps> = ({ onImportComplete }) => {
                 </ul>
               </div>
             )}
-          </Card>
+          </div>
         )}
-      </Stack>
-    </Card>
+      </div>
+    </div>
   );
 };
 

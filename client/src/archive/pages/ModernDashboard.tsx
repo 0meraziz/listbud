@@ -5,7 +5,7 @@ import { Plus, FolderOpen, MapPin, Search, Grid3X3, List as ListIcon, Star, Tren
 
 // Import our new components
 import AppHeader from '../components/AppHeader'
-import ImportTakeout from '../components/ImportTakeout'
+import ImportTakeout from '../../components/ImportTakeout'
 import {
   Grid,
   SkeletonCard
@@ -14,8 +14,8 @@ import { Button } from '../components/ui/Button'
 import { useAuth } from '../contexts/AuthContext'
 
 // Import existing services and types
-import { placesService, categoriesService, foldersService } from '../services/api'
-import { Place, Tag, Folder } from '../types'
+import { placesService, categoriesService, foldersService } from '../../services/api'
+import { Place, Tag, Folder } from '../../types'
 
 // Utility function to decode HTML entities and handle special characters
 const decodeHtmlEntities = (text: string): string => {

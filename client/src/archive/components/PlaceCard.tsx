@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Star, ExternalLink, Trash2, Edit, Calendar, Tag, FolderIcon, MoreVertical, Eye } from 'lucide-react';
-import { Place, Tag as TagType, List } from '../types';
-import { Card, Button, Stack } from './ui';
-import { Dropdown } from './ui/Dropdown';
-import { Badge } from './ui/Badge';
+import { Place, Tag as TagType, List } from '../../types';
+import { Card, Button, Stack } from '../ui';
+import { Dropdown } from '../ui/Dropdown';
+import { Badge } from '../ui/Badge';
 
 interface PlaceCardProps {
   place: Place;

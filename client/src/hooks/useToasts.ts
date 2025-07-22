@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ToastData } from '../components/ui/Toast';
+import { ToastData } from '../types/toast';
 
 export const useToasts = () => {
   const [toasts, setToasts] = useState<ToastData[]>([]);
