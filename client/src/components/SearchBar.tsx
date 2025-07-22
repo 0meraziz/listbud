@@ -75,10 +75,10 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, tags = [] }) => {
 
           {hasActiveFilters && (
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={clearFilters}
               leftIcon={X}
-              className="text-gray-500 hover:text-red-600"
+              className="text-gray-700 hover:text-red-600 bg-white border-gray-200 hover:bg-red-50"
             >
               Clear
             </Button>

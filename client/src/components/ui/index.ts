@@ -1,3 +1,33 @@
+// Enhanced Design System Components
+export { EnhancedButton, buttonVariants } from './EnhancedButton'
+export {
+  EnhancedCard,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  cardVariants
+} from './EnhancedCard'
+export { EnhancedDropdown } from './EnhancedDropdown'
+
+// Modern Design System Components (New)
+export { ModernButton } from './ModernButton'
+export {
+  ModernCard,
+  CardHeader as ModernCardHeader,
+  CardBody as ModernCardBody,
+  CardFooter as ModernCardFooter,
+  CardTitle as ModernCardTitle,
+  CardDescription as ModernCardDescription
+} from './ModernCard'
+export {
+  ModernInput,
+  SearchInput,
+  FloatingInput
+} from './ModernInput'
+
+// Legacy Components (to be migrated)
 export { default as Button } from './Button';
 export { default as Input } from './Input';
 export { default as Icon } from './Icon';

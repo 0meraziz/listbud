@@ -176,18 +176,18 @@ const FolderManager: React.FC<FolderManagerProps> = ({ folders, onFoldersChange 
                   </div>
                   <div className="flex gap-1">
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="xs"
                       onClick={() => setEditingId(folder.id)}
-                      className="text-gray-500 hover:text-blue-600"
+                      className="text-gray-700 hover:text-blue-600 bg-white border-gray-200 hover:bg-blue-50"
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="xs"
                       onClick={() => handleDeleteFolder(folder.id)}
-                      className="text-gray-500 hover:text-red-600"
+                      className="text-gray-700 hover:text-red-600 bg-white border-gray-200 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>

@@ -29,10 +29,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </span>
                   <Button
                     onClick={logout}
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     leftIcon={LogOut}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 bg-white border-gray-200 hover:bg-red-50"
                   >
                     Logout
                   </Button>

@@ -1,21 +1,58 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { NewDashboard } from '../components/redesign/NewDashboard'
+import ImportTakeout from '../components/ImportTakeout'
 import { List, Place, Tag } from '../types'
 import { placesService, foldersService, categoriesService } from '../services/api'
 
-// This is a demo integration component showing how to use the new dashboard
-// Replace your existing Dashboard component with this structure
+// This is the main integration component connecting the redesigned NewDashboard
+// with the existing API and routing system
 
 export const DashboardIntegration: React.FC = () => {
+  const navigate = useNavigate()
+  const { folderId, placeId } = useParams()
+
+  // Data state
   const [lists, setLists] = useState<List[]>([])
   const [places, setPlaces] = useState<Place[]>([])
   const [tags, setTags] = useState<Tag[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Navigation state
+  const [currentList, setCurrentList] = useState<List | null>(null)
+  const [currentPlace, setCurrentPlace] = useState<Place | null>(null)
+
+  // Search and filter state
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
+
+  // Import state
+  const [showImport, setShowImport] = useState(false)
+
   useEffect(() => {
     loadData()
   }, [])
+
+  // Handle URL parameter changes for folder/list navigation
+  useEffect(() => {
+    if (folderId && lists.length > 0) {
+      const list = lists.find(l => l.id === folderId)
+      setCurrentList(list || null)
+    } else {
+      setCurrentList(null)
+    }
+  }, [folderId, lists])
+
+  // Handle URL parameter changes for place navigation
+  useEffect(() => {
+    if (placeId && places.length > 0) {
+      const place = places.find(p => p.id === placeId)
+      setCurrentPlace(place || null)
+    } else {
+      setCurrentPlace(null)
+    }
+  }, [placeId, places])
 
   const loadData = async () => {
     try {
@@ -50,18 +87,41 @@ export const DashboardIntegration: React.FC = () => {
       }))
 
       // Convert places to new format (with safety check)
-      const convertedPlaces: Place[] = (placesData || []).map(place => ({
-        ...place,
-        listId: (place as any).folderId, // Convert folderId to listId
-        tags: ((place as any).categories || []).map((category: any) => ({
-          id: category.id,
-          name: category.name,
-          color: category.color,
-          userId: category.userId,
-          createdAt: category.createdAt,
-        })),
-        visited: false, // Default value
-      }))
+      const convertedPlaces: Place[] = (placesData || []).map(place => {
+        const listId = (place as any).folderId || (place as any).listId
+        console.log('Converting place:', {
+          placeName: place.name,
+          originalFolderId: (place as any).folderId,
+          originalListId: (place as any).listId,
+          convertedListId: listId
+        })
+        return {
+          ...place,
+          listId: listId, // Convert folderId to listId, with fallback
+          tags: ((place as any).categories || []).map((category: any) => ({
+            id: category.id,
+            name: category.name,
+            color: category.color,
+            userId: category.userId,
+            createdAt: category.createdAt,
+          })),
+          visited: false, // Default value
+        }
+      })
+
+      console.log('Loaded data:', {
+        places: convertedPlaces.length,
+        lists: convertedLists.length,
+        tags: convertedTags.length
+      })
+      console.log('Place-List associations:', convertedPlaces.map(p => ({
+        placeName: p.name,
+        listId: p.listId
+      })))
+      console.log('Available lists:', convertedLists.map(l => ({
+        listId: l.id,
+        listName: l.name
+      })))
 
       setLists(convertedLists)
       setPlaces(convertedPlaces)
@@ -76,6 +136,34 @@ export const DashboardIntegration: React.FC = () => {
 
   const handleListSelect = (list: List) => {
     console.log('Selected list:', list)
+    // Navigate to the folder/list view using the existing route structure
+    navigate(`/redesign/folders/${list.id}`)
+  }
+
+  const handlePlaceSelect = (place: Place) => {
+    console.log('Selected place:', place)
+    // Navigate to the place detail view
+    navigate(`/redesign/places/${place.id}`)
+  }
+
+  const handlePlaceView = (place: Place | null) => {
+    setCurrentPlace(place)
+    if (place) {
+      // Update URL to reflect place selection but stay in current context
+      navigate(`/redesign/places/${place.id}`, { replace: true })
+    } else {
+      // Go back to current list or main view
+      if (currentList) {
+        navigate(`/redesign/folders/${currentList.id}`, { replace: true })
+      } else {
+        navigate('/redesign', { replace: true })
+      }
+    }
+  }
+
+  const handleBackToLists = () => {
+    // Navigate back to main lists view
+    navigate('/redesign')
   }
 
   const handleListCreate = async (listData: Omit<List, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -232,6 +320,135 @@ export const DashboardIntegration: React.FC = () => {
     }
   }
 
+  // Advanced place-tag management functions
+  const handlePlaceTagUpdate = async (placeId: string, tagIds: string[]) => {
+    try {
+      console.log('handlePlaceTagUpdate called:', { placeId, tagIds })
+
+      // Update place tags using existing API
+      await placesService.updatePlaceTags(placeId, tagIds)
+
+      // Update local state
+      setPlaces(prev => prev.map(place => {
+        if (place.id === placeId) {
+          const newTags = tagIds.map(tagId => tags.find(tag => tag.id === tagId)).filter(Boolean) as Tag[]
+          return { ...place, tags: newTags }
+        }
+        return place
+      }))
+    } catch (err) {
+      console.error('Error updating place tags:', err)
+      setError('Failed to update place tags')
+    }
+  }
+
+  const handlePlaceListUpdate = async (placeId: string, listId: string | null) => {
+    try {
+      console.log('handlePlaceListUpdate called:', { placeId, listId })
+
+      // Update place list using existing API
+      await placesService.updatePlace(placeId, { listId: listId || undefined })
+
+      // Update local state
+      setPlaces(prev => prev.map(place => {
+        if (place.id === placeId) {
+          return { ...place, listId: listId || undefined }
+        }
+        return place
+      }))
+    } catch (err) {
+      console.error('Error updating place list:', err)
+      setError('Failed to update place list')
+    }
+  }
+
+  // Search and filtering functions
+  const handleSearch = (query: string) => {
+    console.log('Search handler called with query:', query)
+    setSearchQuery(query)
+  }
+
+  const getPlacesInCurrentList = () => {
+    if (!currentList) {
+      return places // Show all places when no list is selected
+    }
+    // Filter places by list ID
+    return places.filter(place => place.listId === currentList.id)
+  }
+
+  const getFilteredPlaces = () => {
+    let filteredPlaces = getPlacesInCurrentList()
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filteredPlaces = filteredPlaces.filter(place =>
+        place.name.toLowerCase().includes(query) ||
+        place.address?.toLowerCase().includes(query) ||
+        place.notes?.toLowerCase().includes(query) ||
+        (place.tags || []).some(tag => tag.name.toLowerCase().includes(query))
+      )
+    }
+
+    // Apply tag filter - Use OR logic (show places that have ANY of the selected tags)
+    if (selectedTagIds.length > 0) {
+      console.log('Applying tag filter for:', selectedTagIds.length, 'tags')
+      const beforeCount = filteredPlaces.length
+
+      filteredPlaces = filteredPlaces.filter(place => {
+        const placeTags = place.tags || []
+        const placeTagIds = placeTags.map(tag => tag.id)
+
+        // Check if this place has ANY of the selected tags (OR logic)
+        const hasAnyTag = selectedTagIds.some(selectedTagId =>
+          placeTagIds.includes(selectedTagId)
+        )
+
+        return hasAnyTag
+      })
+
+      console.log(`Tag filter applied: ${filteredPlaces.length} places (was ${beforeCount})`)
+    }
+
+    return filteredPlaces
+  }
+
+  const getFilteredLists = () => {
+    if (!searchQuery.trim()) {
+      return lists
+    }
+
+    const query = searchQuery.toLowerCase()
+    return lists.filter(list =>
+      list.name.toLowerCase().includes(query)
+    )
+  }
+
+  const handleTagClick = (tagId: string) => {
+    console.log('Tag clicked:', tagId, 'Current selection:', selectedTagIds)
+
+    setSelectedTagIds(prev => {
+      const newSelection = prev.includes(tagId)
+        ? prev.filter(id => id !== tagId)
+        : [...prev, tagId]
+      console.log('New selectedTagIds:', newSelection)
+      return newSelection
+    })
+  }
+
+  const clearTagFilters = () => {
+    setSelectedTagIds([])
+  }
+
+  const handleImportClick = () => {
+    setShowImport(true)
+  }
+
+  const handleImportComplete = () => {
+    loadData() // Refresh data after import
+    setShowImport(false)
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-notion-50 flex items-center justify-center">
@@ -260,21 +477,50 @@ export const DashboardIntegration: React.FC = () => {
   }
 
   return (
-    <NewDashboard
-      lists={lists}
-      places={places}
-      tags={tags}
-      onListSelect={handleListSelect}
-      onListCreate={handleListCreate}
-      onListUpdate={handleListUpdate}
-      onListDelete={handleListDelete}
-      onPlaceCreate={handlePlaceCreate}
-      onPlaceUpdate={handlePlaceUpdate}
-      onPlaceDelete={handlePlaceDelete}
-      onTagCreate={handleTagCreate}
-      onTagUpdate={handleTagUpdate}
-      onTagDelete={handleTagDelete}
-    />
+    <>
+      <NewDashboard
+        lists={lists}
+        places={places}
+        tags={tags}
+        currentList={currentList}
+        currentPlace={currentPlace}
+        searchQuery={searchQuery}
+        onSearchChange={handleSearch}
+        filteredLists={getFilteredLists()}
+        filteredPlaces={getFilteredPlaces()}
+        onListSelect={handleListSelect}
+        onListCreate={handleListCreate}
+        onListUpdate={handleListUpdate}
+        onListDelete={handleListDelete}
+        onPlaceCreate={handlePlaceCreate}
+        onPlaceUpdate={handlePlaceUpdate}
+        onPlaceDelete={handlePlaceDelete}
+        onPlaceSelect={handlePlaceView}
+        onTagCreate={handleTagCreate}
+        onTagUpdate={handleTagUpdate}
+        onTagDelete={handleTagDelete}
+        onNavigateBack={handleBackToLists}
+        onImport={handleImportClick}
+      />
+
+      {/* Import Modal */}
+      {showImport && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-[600px] max-w-[90vw] mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Import from Google Takeout</h3>
+              <button
+                onClick={() => setShowImport(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <ImportTakeout onImportComplete={handleImportComplete} />
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

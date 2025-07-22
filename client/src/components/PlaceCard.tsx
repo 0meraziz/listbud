@@ -120,10 +120,10 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
             <div className={`flex items-center gap-1 transition-all duration-200 ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'}`}>
               {onViewDetails && (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="xs"
                   onClick={() => onViewDetails(place)}
-                  className="text-gray-500 hover:text-blue-600"
+                  className="text-gray-700 hover:text-blue-600 bg-white border-gray-200 hover:bg-blue-50"
                 >
                   <Eye className="w-4 h-4" />
                 </Button>
@@ -131,10 +131,10 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
 
               {place.url && (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="xs"
                   onClick={() => window.open(place.url, '_blank')}
-                  className="text-gray-500 hover:text-blue-600"
+                  className="text-gray-700 hover:text-blue-600 bg-white border-gray-200 hover:bg-blue-50"
                 >
                   <ExternalLink className="w-4 h-4" />
                 </Button>
@@ -144,9 +144,9 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
                 <Dropdown
                   trigger={
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="xs"
-                      className="text-gray-500 hover:text-blue-600"
+                      className="text-gray-700 hover:text-blue-600 bg-white border-gray-200 hover:bg-blue-50"
                     >
                       <Tag className="w-4 h-4" />
                     </Button>
@@ -162,9 +162,9 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
                 <Dropdown
                   trigger={
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="xs"
-                      className="text-gray-500 hover:text-blue-600"
+                      className="text-gray-700 hover:text-blue-600 bg-white border-gray-200 hover:bg-blue-50"
                     >
                       <FolderIcon className="w-4 h-4" />
                     </Button>
@@ -175,10 +175,10 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
               )}
 
               <Button
-                variant="ghost"
+                variant="outline"
                 size="xs"
                 onClick={() => onDelete(place.id)}
-                className="text-gray-500 hover:text-red-600"
+                className="text-gray-700 hover:text-red-600 bg-white border-gray-200 hover:bg-red-50"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

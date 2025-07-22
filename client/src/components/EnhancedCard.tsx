@@ -52,13 +52,13 @@ const CardActions: React.FC<{ actions: CardAction[] }> = ({ actions }) => {
   return (
     <div className="relative">
       <Button
-        variant="ghost"
+        variant="outline"
         size="sm"
         onClick={(e) => {
           e.stopPropagation()
           setIsOpen(!isOpen)
         }}
-        className="h-8 w-8 p-0"
+        className="h-8 w-8 p-0 bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
       >
         <MoreVertical className="w-4 h-4" />
       </Button>

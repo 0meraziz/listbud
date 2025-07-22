@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
-import { Plus, Smile } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { List } from '../../types'
-import { NewButton } from '../shadcn/button'
-import { Input } from '../shadcn/input'
-import { SimpleDialog } from '../shadcn/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../shadcn/dialog'
+import { EnhancedButton } from '../ui/EnhancedButton'
 import { generateColorFromString } from '../../lib/utils'
 
 interface NewListDialogProps {
@@ -59,16 +58,19 @@ export const NewListDialog: React.FC<NewListDialogProps> = ({
   }
 
   return (
-    <SimpleDialog open={open} onOpenChange={onOpenChange}>
-      <div className="space-y-6">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-notion-900">Create New List</h2>
-          <p className="text-sm text-notion-500 mt-1">
-            Organize your places into a beautiful collection
-          </p>
-        </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Create New List</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
+          <div className="text-center">
+            <p className="text-sm text-gray-500">
+              Organize your places into a beautiful collection
+            </p>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
           {/* Preview */}
           <div className="text-center">
             <div
@@ -84,16 +86,17 @@ export const NewListDialog: React.FC<NewListDialogProps> = ({
 
           {/* Name Input */}
           <div className="space-y-2">
-            <label htmlFor="name" className="text-sm font-medium text-notion-700">
+            <label htmlFor="name" className="text-sm font-medium text-gray-700">
               List Name
             </label>
-            <Input
+            <input
               id="name"
               type="text"
               placeholder="e.g., Tokyo Trip 2024, Favorite Restaurants"
               value={name}
               onChange={handleNameChange}
               required
+              className="input w-full"
             />
           </div>
 
@@ -162,17 +165,17 @@ export const NewListDialog: React.FC<NewListDialogProps> = ({
 
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-4">
-            <NewButton
+            <EnhancedButton
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </NewButton>
-            <NewButton
+            </EnhancedButton>
+            <EnhancedButton
               type="submit"
               disabled={!name.trim() || isLoading}
-              className="gap-2"
+              leftIcon={isLoading ? undefined : <Plus className="h-4 w-4" />}
             >
               {isLoading ? (
                 <>
@@ -180,15 +183,13 @@ export const NewListDialog: React.FC<NewListDialogProps> = ({
                   Creating...
                 </>
               ) : (
-                <>
-                  <Plus className="h-4 w-4" />
-                  Create List
-                </>
+                'Create List'
               )}
-            </NewButton>
+            </EnhancedButton>
           </div>
         </form>
-      </div>
-    </SimpleDialog>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Search, MapPin, Hash, ArrowRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Search, MapPin, Hash, ArrowRight, Command } from 'lucide-react'
 import { Place, List, Tag } from '../../types'
 import { SimpleDialog } from '../shadcn/dialog'
 import { Input } from '../shadcn/input'
@@ -15,6 +16,27 @@ interface GlobalSearchCommandProps {
   onListSelect: (list: List) => void
 }
 
+// Enhanced Search Bar Component for header
+export const SearchBar: React.FC<{
+  onFocus: () => void
+  placeholder?: string
+}> = ({ onFocus, placeholder = "Search lists and places... (⌘K)" }) => {
+  return (
+    <div className="relative max-w-md w-full">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+      <input
+        className="w-full pl-10 pr-16 py-2.5 bg-gray-50 border-0 rounded-full focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all duration-200 placeholder-gray-400"
+        placeholder={placeholder}
+        onFocus={onFocus}
+        readOnly
+      />
+      <kbd className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 text-xs text-gray-400 bg-white border border-gray-200 rounded flex items-center gap-1">
+        <Command className="w-3 h-3" />K
+      </kbd>
+    </div>
+  )
+}
+
 export const GlobalSearchCommand: React.FC<GlobalSearchCommandProps> = ({
   open,
   onOpenChange,
@@ -27,7 +49,7 @@ export const GlobalSearchCommand: React.FC<GlobalSearchCommandProps> = ({
   const [query, setQuery] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(0)
 
-  // Filter results based on query
+  // Filter results based on query with enhanced matching
   const filteredPlaces = places.filter(place =>
     place.name.toLowerCase().includes(query.toLowerCase()) ||
     place.address.toLowerCase().includes(query.toLowerCase()) ||

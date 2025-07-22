@@ -185,10 +185,10 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => handleDeleteCategory(category.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 bg-white border-gray-200 hover:bg-red-50"
                   >
                     <X className="w-4 h-4" />
                   </Button>

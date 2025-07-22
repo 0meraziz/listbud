@@ -3,6 +3,13 @@ import { Folder, MapPin, ChevronRight, MoreVertical } from 'lucide-react';
 import { Folder as FolderType } from '../types';
 import { Card, Stack, Badge } from './ui';
 
+// Utility function to decode HTML entities and handle special characters
+const decodeHtmlEntities = (text: string): string => {
+  const textArea = document.createElement('textarea')
+  textArea.innerHTML = text
+  return textArea.value
+}
+
 interface FolderCardProps {
   folder: FolderType;
   placeCount?: number;
@@ -46,7 +53,7 @@ const FolderCard: React.FC<FolderCardProps> = ({
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-lg text-gray-900 group-hover:text-blue-600 transition-colors duration-200 mb-1">
-                  {folder.name}
+                  {decodeHtmlEntities(folder.name)}
                 </h3>
                 <div className="flex items-center gap-2">
                   <Badge

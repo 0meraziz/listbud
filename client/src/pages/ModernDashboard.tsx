@@ -5,14 +5,9 @@ import { Plus, FolderOpen, MapPin, Search, Grid3X3, List as ListIcon, Star, Tren
 
 // Import our new components
 import AppHeader from '../components/AppHeader'
-import EnhancedCard from '../components/EnhancedCard'
-import PlaceCard from '../components/PlaceCard'
 import ImportTakeout from '../components/ImportTakeout'
 import {
   Grid,
-  PageContainer,
-  Section,
-  EmptyState,
   SkeletonCard
 } from '../components/LayoutComponents'
 import { Button } from '../components/ui/Button'
@@ -21,6 +16,13 @@ import { useAuth } from '../contexts/AuthContext'
 // Import existing services and types
 import { placesService, categoriesService, foldersService } from '../services/api'
 import { Place, Tag, Folder } from '../types'
+
+// Utility function to decode HTML entities and handle special characters
+const decodeHtmlEntities = (text: string): string => {
+  const textArea = document.createElement('textarea')
+  textArea.innerHTML = text
+  return textArea.value
+}
 
 const ModernDashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -274,10 +276,10 @@ const ModernDashboard: React.FC = () => {
   const getBreadcrumbs = () => {
     const breadcrumbs = [{ label: 'Dashboard', href: '/modern' }]
     if (currentFolder) {
-      breadcrumbs.push({ label: currentFolder.name, href: `/folders/${currentFolder.id}` })
+      breadcrumbs.push({ label: decodeHtmlEntities(currentFolder.name), href: `/folders/${currentFolder.id}` })
     }
     if (currentPlace) {
-      breadcrumbs.push({ label: currentPlace.name, href: `/places/${currentPlace.id}` })
+      breadcrumbs.push({ label: decodeHtmlEntities(currentPlace.name), href: `/places/${currentPlace.id}` })
     }
     return breadcrumbs
   }
@@ -328,7 +330,7 @@ const ModernDashboard: React.FC = () => {
   const getPageTitle = () => {
     if (currentPlace) {
       return {
-        title: currentPlace.name,
+        title: decodeHtmlEntities(currentPlace.name),
         subtitle: currentPlace.address || 'Place details'
       }
     }
@@ -337,7 +339,7 @@ const ModernDashboard: React.FC = () => {
       const totalPlaces = getPlacesInCurrentFolder().length
       const searchSuffix = searchQuery ? ` (${placesCount} of ${totalPlaces} shown)` : ''
       return {
-        title: currentFolder.name,
+        title: decodeHtmlEntities(currentFolder.name),
         subtitle: `${placesCount} place${placesCount !== 1 ? 's' : ''}${searchSuffix}`
       }
     }
@@ -522,7 +524,7 @@ const ModernDashboard: React.FC = () => {
                         <div className="text-2xl flex-shrink-0">📁</div>
                         <div className="min-w-0 flex-1">
                           <h3 className="font-semibold text-gray-900 text-lg break-words">
-                            {folder.name}
+                            {decodeHtmlEntities(folder.name)}
                           </h3>
                           <p className="text-gray-600 text-sm">
                             {folderPlaces.length} place{folderPlaces.length !== 1 ? 's' : ''}
@@ -547,12 +549,14 @@ const ModernDashboard: React.FC = () => {
               onClick={handleAddNew}
               className="w-full bg-white rounded-xl border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors duration-200 p-8 text-center"
             >
-              <div className="text-4xl text-gray-400 mb-4">➕</div>
-              <div className="font-medium text-gray-600 group-hover:text-gray-900">
-                Create new list
-              </div>
-              <div className="text-sm text-gray-500 mt-1 break-words">
-                Organize your places
+              <div className="flex flex-col items-center space-y-2">
+                <div className="text-4xl text-gray-400">➕</div>
+                <div className="font-medium text-gray-600 group-hover:text-gray-900">
+                  Create new list
+                </div>
+                <div className="text-sm text-gray-500">
+                  Organize your places
+                </div>
               </div>
             </button>
           </div>
@@ -640,7 +644,7 @@ const ModernDashboard: React.FC = () => {
         <div className="max-w-2xl mx-auto text-center py-16 px-4">
           <div className="text-6xl mb-6">📍</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            {currentFolder ? `No places in ${currentFolder.name} yet` : "No places yet"}
+            {currentFolder ? `No places in ${decodeHtmlEntities(currentFolder.name)} yet` : "No places yet"}
           </h2>
           <p className="text-gray-600 mb-8">
             {currentFolder
@@ -763,7 +767,7 @@ const ModernDashboard: React.FC = () => {
                     window.open(`https://www.google.com/maps/search/${query}`, '_blank')
                   }}
                 >
-                  {place.name}
+                  {decodeHtmlEntities(place.name)}
                 </h3>
                 <div className="flex items-start gap-2 text-sm text-gray-500">
                   <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -874,7 +878,7 @@ const ModernDashboard: React.FC = () => {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to {currentFolder ? currentFolder.name : 'Dashboard'}
+            Back to {currentFolder ? decodeHtmlEntities(currentFolder.name) : 'Dashboard'}
           </button>
         </div>
 
@@ -884,7 +888,7 @@ const ModernDashboard: React.FC = () => {
             <div className="flex items-start justify-between mb-6">
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  {currentPlace.name}
+                  {decodeHtmlEntities(currentPlace.name)}
                 </h1>
                 <div className="flex items-center gap-2 text-gray-600 mb-4">
                   <MapPin className="w-5 h-5" />
@@ -1024,7 +1028,7 @@ const ModernDashboard: React.FC = () => {
                     Back to Dashboard
                   </button>
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900">{currentFolder.name}</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">{decodeHtmlEntities(currentFolder.name)}</h1>
                     <p className="text-gray-600 mt-1">
                       {getPlacesInCurrentFolder().length} place{getPlacesInCurrentFolder().length !== 1 ? 's' : ''}
                     </p>

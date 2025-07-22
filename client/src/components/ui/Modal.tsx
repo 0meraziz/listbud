@@ -69,10 +69,10 @@ export const Modal: React.FC<ModalProps> = ({
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-700 hover:text-gray-600 bg-white border-gray-200 hover:bg-gray-50"
             >
               <X className="w-5 h-5" />
             </Button>

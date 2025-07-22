@@ -1,10 +1,9 @@
-import React, { useState } from 'react'
-import { MoreVertical, MapPin, Calendar, Trash2, Edit3, ExternalLink } from 'lucide-react'
+import React from 'react'
+import { motion } from 'framer-motion'
+import { MoreVertical, Edit3, Trash2 } from 'lucide-react'
 import { List } from '../../types'
-import { Card, CardContent, CardHeader } from '../shadcn/card'
-import { NewButton } from '../shadcn/button'
-import { Badge } from '../shadcn/badge'
-import { cn, formatRelativeTime } from '../../lib/utils'
+import { EnhancedButton, EnhancedDropdown } from '../ui'
+import { formatRelativeTime } from '../../lib/utils'
 
 interface ListCardProps {
   list: List
@@ -17,109 +16,82 @@ export const ListCard: React.FC<ListCardProps> = ({
   list,
   onSelect,
   onEdit,
-  onDelete,
+  onDelete
 }) => {
-  const [showActions, setShowActions] = useState(false)
-
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onEdit(list)
-  }
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (window.confirm(`Are you sure you want to delete "${list.name}"?`)) {
-      onDelete(list.id)
-    }
-  }
-
   const handleCardClick = () => {
     onSelect(list)
   }
 
+  const dropdownItems = [
+    {
+      id: 'edit',
+      label: 'Edit List',
+      icon: <Edit3 className="h-4 w-4" />,
+      onClick: () => onEdit(list)
+    },
+    {
+      id: 'delete',
+      label: 'Delete List',
+      icon: <Trash2 className="h-4 w-4" />,
+      variant: 'destructive' as const,
+      onClick: () => {
+        if (window.confirm(`Are you sure you want to delete "${list.name}"?`)) {
+          onDelete(list.id)
+        }
+      }
+    }
+  ]
+
   return (
-    <Card
-      className="notion-card group cursor-pointer hover:shadow-medium transition-all duration-200 relative overflow-hidden"
+    <motion.div
+      whileHover={{ y: -2, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
       onClick={handleCardClick}
+      className="w-full h-full"
     >
-      {/* Cover Image */}
-      {list.coverImage ? (
-        <div className="h-32 bg-cover bg-center" style={{ backgroundImage: `url(${list.coverImage})` }}>
-          <div className="h-full w-full bg-black/20" />
+      <div className="list-card group">
+        {/* Card Header - Clean and Always Visible */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{list.emoji || '🗺️'}</span>
+            <h3 className="card-title">{list.name}</h3>
+          </div>
+
+          {/* Enhanced Actions Dropdown - Clean and Always Visible */}
+          <div className="opacity-60 hover:opacity-100 transition-opacity duration-200">
+            <EnhancedDropdown
+              trigger={
+                <EnhancedButton
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                  className="h-8 w-8 p-1 rounded"
+                  title="List options"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </EnhancedButton>
+              }
+              items={dropdownItems}
+              align="right"
+            />
+          </div>
         </div>
-      ) : (
-        <div
-          className="h-32 bg-gradient-to-br from-primary-400 to-primary-600"
-          style={{ backgroundColor: list.color }}
-        />
-      )}
 
-      {/* Actions Menu */}
-      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="relative">
-          <NewButton
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 bg-white/90 backdrop-blur-sm hover:bg-white"
-            onClick={(e) => {
-              e.stopPropagation()
-              setShowActions(!showActions)
-            }}
-          >
-            <MoreVertical className="h-4 w-4" />
-          </NewButton>
+        {/* Card Content - Always Visible with Clear Hierarchy */}
+        <div className="card-meta mb-4">
+          <span className="text-sm font-medium text-gray-600">
+            {list.placeCount} {list.placeCount === 1 ? 'place' : 'places'}
+          </span>
+        </div>
 
-          {showActions && (
-            <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-strong border border-notion-200 py-1 z-50">
-              <button
-                className="notion-dropdown-item w-full text-left flex items-center gap-2"
-                onClick={handleEdit}
-              >
-                <Edit3 className="h-4 w-4" />
-                Edit List
-              </button>
-              <button
-                className="notion-dropdown-item w-full text-left flex items-center gap-2 text-error-600 hover:bg-error-50"
-                onClick={handleDelete}
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete List
-              </button>
-            </div>
-          )}
+        {/* Card Footer - Subtle but Always Readable */}
+        <div className="card-footer">
+          <span className="text-xs text-gray-400">
+            Updated {formatRelativeTime(list.createdAt)}
+          </span>
         </div>
       </div>
-
-      <CardContent className="p-4">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-3">
-          <div className="text-2xl">
-            {list.emoji || '📍'}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-notion-900 truncate">
-              {list.name}
-            </h3>
-            <div className="flex items-center gap-2 text-sm text-notion-500">
-              <MapPin className="h-3 w-3" />
-              <span>{list.placeCount} places</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between text-xs text-notion-400">
-          <div className="flex items-center gap-1">
-            <Calendar className="h-3 w-3" />
-            <span>{formatRelativeTime(list.createdAt)}</span>
-          </div>
-
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <ExternalLink className="h-3 w-3" />
-            <span>Open</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    </motion.div>
   )
 }

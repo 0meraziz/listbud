@@ -5,8 +5,11 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
-        // Custom brand colors
+        // Enhanced primary colors from your design system
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -18,6 +21,13 @@ module.exports = {
           700: '#0369a1',
           800: '#075985',
           900: '#0c4a6e',
+        },
+        // Accent colors for visual interest
+        accent: {
+          purple: '#8b5cf6',
+          green: '#10b981',
+          orange: '#f59e0b',
+          pink: '#ec4899',
         },
         // Notion-inspired grays
         notion: {
@@ -91,14 +101,21 @@ module.exports = {
         '128': '32rem',
       },
       animation: {
-        'fade-in': 'fadeIn 0.2s ease-in-out',
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-up': 'slideUp 0.3s ease-out',
         'slide-in': 'slideIn 0.3s ease-out',
         'scale-in': 'scaleIn 0.2s ease-out',
+        'shimmer': 'shimmer 1.5s ease-in-out infinite',
+        'bounce-subtle': 'bounceSubtle 0.3s ease-out',
       },
       keyframes: {
         fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
         },
         slideIn: {
           '0%': { transform: 'translateY(-10px)', opacity: '0' },
@@ -107,6 +124,15 @@ module.exports = {
         scaleIn: {
           '0%': { transform: 'scale(0.95)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        bounceSubtle: {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.05)' },
+          '100%': { transform: 'scale(1)' },
         },
       },
     },

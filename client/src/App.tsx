@@ -9,6 +9,8 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './pages/Dashboard';
 import ModernDashboard from './pages/ModernDashboard';
+import EnhancedModernDashboard from './pages/EnhancedModernDashboard';
+import { DashboardIntegration } from './pages/DashboardIntegration';
 import DebugAuth from './components/DebugAuth';
 
 function App() {
@@ -24,10 +26,34 @@ function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                   <Route
+                    path="/redesign"
+                    element={
+                      <ProtectedRoute>
+                        <DashboardIntegration />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/redesign/folders/:folderId"
+                    element={
+                      <ProtectedRoute>
+                        <DashboardIntegration />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/redesign/places/:placeId"
+                    element={
+                      <ProtectedRoute>
+                        <DashboardIntegration />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
                     path="/dashboard"
                     element={
                       <ProtectedRoute>
-                        <ModernDashboard />
+                        <EnhancedModernDashboard />
                       </ProtectedRoute>
                     }
                   />
@@ -35,7 +61,15 @@ function App() {
                     path="/modern"
                     element={
                       <ProtectedRoute>
-                        <ModernDashboard />
+                        <EnhancedModernDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/enhanced"
+                    element={
+                      <ProtectedRoute>
+                        <EnhancedModernDashboard />
                       </ProtectedRoute>
                     }
                   />
@@ -43,7 +77,7 @@ function App() {
                     path="/folders/:folderId"
                     element={
                       <ProtectedRoute>
-                        <ModernDashboard />
+                        <EnhancedModernDashboard />
                       </ProtectedRoute>
                     }
                   />
@@ -51,7 +85,7 @@ function App() {
                     path="/places/:placeId"
                     element={
                       <ProtectedRoute>
-                        <ModernDashboard />
+                        <EnhancedModernDashboard />
                       </ProtectedRoute>
                     }
                   />
@@ -63,8 +97,16 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="/" element={<Navigate to="/modern" replace />} />
-                  <Route path="*" element={<Navigate to="/modern" replace />} />
+                  <Route
+                    path="/old"
+                    element={
+                      <ProtectedRoute>
+                        <ModernDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="/" element={<Navigate to="/enhanced" replace />} />
+                  <Route path="*" element={<Navigate to="/enhanced" replace />} />
                 </Routes>
               </div>
             </AppErrorBoundary>
